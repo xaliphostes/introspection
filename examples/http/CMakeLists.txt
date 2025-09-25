@@ -5,7 +5,7 @@ include(FetchContent)
 FetchContent_Declare(
     httplib
     GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-    GIT_TAG v0.15.3  # Use latest stable version
+    GIT_TAG v0.26.0  # Use latest stable version
 )
 FetchContent_MakeAvailable(httplib)
 

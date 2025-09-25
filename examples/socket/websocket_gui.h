@@ -1,7 +1,7 @@
 // websocket_gui.cxx - WebSocket-enhanced web server implementation
 #include <httplib.h>
 #include <iostream>
-#include <json/json.h>
+#include <nlohmann/json.hpp>
 #include <introspection/introspectable.h>
 #include <thread>
 #include <chrono>
@@ -52,7 +52,7 @@ private:
 
     // WebSocket connection management
     std::mutex connections_mutex;
-    std::set<std::shared_ptr<httplib::WebSocketConnection>> active_connections;
+    std::set<std::shared_ptr<httplib::websocket::connection>> active_connections;
 
     // Auto-refresh thread
     std::atomic<bool> running{false};
@@ -89,7 +89,7 @@ public:
             std::cout << "WebSocket upgrade request from: " << req.get_header_value("Origin") << std::endl;
             return httplib::websocket_upgrade_result::ACCEPT; });
 
-        server.set_websocket_handler([this](httplib::WebSocketConnection &conn)
+        server.set_websocket_handler([this](httplib::websocket::connection &conn)
                                      { handleWebSocketConnection(conn); });
 
         // REST API endpoints (fallback for non-WebSocket clients)
@@ -107,9 +107,9 @@ public:
                    { res.set_content(getWebSocketJavaScript(), "application/javascript"); });
     }
 
-    void handleWebSocketConnection(httplib::WebSocketConnection &conn)
+    void handleWebSocketConnection(httplib::websocket::connection &conn)
     {
-        auto connection = std::shared_ptr<httplib::WebSocketConnection>(&conn, [](auto *) {});
+        auto connection = std::shared_ptr<httplib::websocket::connection>(&conn, [](auto *) {});
 
         // Add to active connections
         {
@@ -133,7 +133,7 @@ public:
             std::cout << "WebSocket client disconnected. Remaining connections: " << active_connections.size() << std::endl; });
     }
 
-    void handleWebSocketMessage(const std::string &message, httplib::WebSocketConnection &conn)
+    void handleWebSocketMessage(const std::string &message, httplib::websocket::connection &conn)
     {
         std::cout << "Received WebSocket message: " << message << std::endl;
 
@@ -164,7 +164,7 @@ public:
         }
     }
 
-    void handleUpdateMessage(const std::string &message, httplib::WebSocketConnection &conn)
+    void handleUpdateMessage(const std::string &message, httplib::websocket::connection &conn)
     {
         // Simple parsing for: {"type":"update","field":"name","value":"newvalue"}
         std::string field, value;
@@ -198,7 +198,7 @@ public:
         }
     }
 
-    void handleMethodMessage(const std::string &message, httplib::WebSocketConnection &conn)
+    void handleMethodMessage(const std::string &message, httplib::websocket::connection &conn)
     {
         // Simple parsing for: {"type":"method","name":"methodName"}
         std::string method_name;
@@ -224,12 +224,12 @@ public:
         }
     }
 
-    void sendMessage(httplib::WebSocketConnection &conn, const std::string &message)
+    void sendMessage(httplib::websocket::connection &conn, const std::string &message)
     {
         conn.send(message);
     }
 
-    void sendObjectState(httplib::WebSocketConnection &conn)
+    void sendObjectState(httplib::websocket::connection &conn)
     {
         std::string state = generateObjectStateMessage();
         sendMessage(conn, state);

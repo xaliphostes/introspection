@@ -6,7 +6,7 @@ message(STATUS "Fetching yhirose/cpp-httplib...")
 FetchContent_Declare(
     httplib
     GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
-    GIT_TAG v0.15.3  # Use latest stable version
+    GIT_TAG main
     GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(httplib)
