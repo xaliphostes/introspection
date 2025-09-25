@@ -1,31 +1,77 @@
-
 template <typename T>
 inline std::string getTypeName()
 {
-    return typeid(T).name();
+    // Remove const, volatile, and reference qualifiers
+    using BaseType = std::remove_cv_t<std::remove_reference_t<T>>;
+
+    if constexpr (std::is_same_v<BaseType, std::string>)
+    {
+        return "string";
+    }
+    else if constexpr (std::is_same_v<BaseType, char>)
+    {
+        return "char";
+    }
+    else if constexpr (std::is_same_v<BaseType, unsigned char>)
+    {
+        return "unsigned char";
+    }
+    else if constexpr (std::is_same_v<BaseType, char *>)
+    {
+        return "char*";
+    }
+    else if constexpr (std::is_same_v<BaseType, const char *>)
+    {
+        return "const char*";
+    }
+
+    else if constexpr (std::is_pointer_v<BaseType>)
+    {
+        return getTypeName<std::remove_pointer_t<BaseType>>() + "*";
+    }
+    else
+    {
+        // Fallback to mangled name for unknown types
+        return typeid(T).name();
+    }
 }
 
 // Specialized versions for common types
 template <>
-std::string getTypeName<int>() { return "int"; }
+inline std::string getTypeName<short>() { return "short"; }
 
 template <>
-std::string getTypeName<double>() { return "double"; }
+inline std::string getTypeName<unsigned short>() { return "unsigned short"; }
 
 template <>
-std::string getTypeName<float>() { return "float"; }
+inline std::string getTypeName<long>() { return "long"; }
 
 template <>
-std::string getTypeName<std::string>() { return "string"; }
+inline std::string getTypeName<unsigned long>() { return "unsigned long"; }
 
 template <>
-std::string getTypeName<const char*>() { return "char*"; }
+inline std::string getTypeName<long long>() { return "long long"; }
 
 template <>
-std::string getTypeName<bool>() { return "bool"; }
+inline std::string getTypeName<unsigned int>() { return "unsigned int"; }
 
 template <>
-std::string getTypeName<void>() { return "void"; }
+inline std::string getTypeName<size_t>() { return "size_t"; }
+
+template <>
+inline std::string getTypeName<int>() { return "int"; }
+
+template <>
+inline std::string getTypeName<double>() { return "double"; }
+
+template <>
+inline std::string getTypeName<float>() { return "float"; }
+
+template <>
+inline std::string getTypeName<bool>() { return "bool"; }
+
+template <>
+inline std::string getTypeName<void>() { return "void"; }
 
 template <typename Class>
 template <typename MemberType>

@@ -19,7 +19,7 @@ A lightweight, header-only C++ introspection system that enables runtime inspect
 #include "introspection.hpp"
 
 class Person : public Introspectable {
-    INTROSPECTABLE_CLASS(Person)
+    INTROSPECTABLE(Person)
     
 private:
     std::string name;
@@ -120,7 +120,7 @@ g++ -std=c++17 main.cpp -o your_app
 
 ## Limitations
 
-- Maximum 2 method parameters (easily extensible)
+- Maximum 3 method parameters (easily extensible)
 - Requires explicit registration of members/methods
 - Runtime overhead due to `std::any` and function pointers
 - No inheritance introspection (each class registers independently)

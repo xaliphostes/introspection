@@ -13,5 +13,5 @@ add_executable(introspection_demo main.cxx)
 
 # Optional: Set output directory
 set_target_properties(introspection_demo PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin
 )

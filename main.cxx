@@ -10,7 +10,7 @@ class Person : public Introspectable // <--------- !!!
     INTROSPECTABLE(Person) // <--------- !!!
 public:
     Person();
-    Person(const std::string &n, int a, double h);
+    Person(const std::string &name, int age, double height);
 
     void introduce();
     std::string getName() const;

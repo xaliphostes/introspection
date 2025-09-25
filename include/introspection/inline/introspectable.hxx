@@ -70,6 +70,7 @@ inline void Introspectable::printMemberValue(const std::string &member_name) con
         std::cout << member_name << " (" << member->type_name << "): ";
 
         // Print based on type
+        // TODO: refactoring for genericity!
         if (member->type_name == "string")
         {
             std::cout << std::any_cast<std::string>(value);
@@ -111,14 +112,14 @@ inline void Introspectable::printClassInfo() const
     for (const auto &member_name : type_info.getMemberNames())
     {
         const auto *member = type_info.getMember(member_name);
-        std::cout << "  " << member_name << " (" << member->type_name << ")" << std::endl;
+        std::cout << "  " << member->type_name << " " << member_name << std::endl;
     }
 
     std::cout << "Methods:" << std::endl;
     for (const auto &method_name : type_info.getMethodNames())
     {
         const auto *method = type_info.getMethod(method_name);
-        std::cout << method->return_type << "  " << method_name ;
+        std::cout << "  " << method->return_type << "  " << method_name;
         if (!method->parameter_types.empty())
         {
             std::cout << "(";
@@ -132,7 +133,8 @@ inline void Introspectable::printClassInfo() const
             }
             std::cout << ")";
         }
-        else {
+        else
+        {
             std::cout << "()";
         }
         std::cout << std::endl;
