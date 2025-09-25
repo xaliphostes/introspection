@@ -10,4 +10,4 @@ include_directories(include)
 
 add_subdirectory(examples/simple)
 add_subdirectory(examples/http)
-# add_subdirectory(examples/socket)
+add_subdirectory(examples/game)

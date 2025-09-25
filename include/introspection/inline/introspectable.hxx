@@ -1,4 +1,5 @@
 #include <sstream>
+#include <iostream>
 
 // Implementation of Introspectable methods (after TypeInfo is fully defined)
 inline Arg Introspectable::getMemberValue(const std::string &member_name) const
