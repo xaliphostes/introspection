@@ -2,6 +2,16 @@
 
 A lightweight, header-only C++ introspection system that enables runtime inspection and manipulation of class members and methods without external dependencies.
 
+This C++ introspection system enables automatic language binding generation for multiple scripting languages without requiring manual binding code for each class member and method.
+
+- For Python, the introspection data can drive automatic pybind11 binding generation, creating properties for all members and properly typed method bindings with argument validation - eliminating the need to manually write .def() calls for each class feature.
+
+- For Lua, the type information allows automatic creation of Lua userdata metatables with __index and __newindex metamethods that dynamically resolve member access, while method calls can be automatically wrapped using the stored function signatures and parameter types.
+
+- For JavaScript (via V8, Node.js addons, or Emscripten), the reflection data enables automatic generation of property descriptors and method wrappers, allowing seamless integration where JavaScript objects can directly access C++ class members as properties and call methods with automatic type conversion between JavaScript values and C++ types.
+
+The key advantage is that once a C++ class inherits from Introspectable and registers its members/methods, it can be automatically exposed to all three languages using the same introspection metadata, drastically reducing the maintenance burden of keeping multiple language bindings synchronized with C++ class changes.
+
 ## Features
 
 - **Runtime Member Access**: Get/set member variables by name
