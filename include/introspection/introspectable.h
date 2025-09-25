@@ -23,6 +23,8 @@ public:
 
     void printMemberValue(const std::string &member_name) const;
     void printClassInfo() const;
+
+    std::string toJSON() const;
 };
 
 // Simplified macro for introspectable classes

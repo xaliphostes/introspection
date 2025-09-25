@@ -1,3 +1,5 @@
+#include <sstream>
+
 // Implementation of Introspectable methods (after TypeInfo is fully defined)
 inline std::any Introspectable::getMemberValue(const std::string &member_name) const
 {
@@ -139,4 +141,82 @@ inline void Introspectable::printClassInfo() const
         }
         std::cout << std::endl;
     }
+}
+
+inline std::string Introspectable::toJSON() const
+{
+    std::stringstream json;
+    const auto &type_info = this->getTypeInfo();
+
+    json << "{\n";
+    json << "  \"className\": \"" << type_info.class_name << "\",\n";
+    json << "  \"members\": [\n";
+
+    auto member_names = type_info.getMemberNames();
+    for (size_t i = 0; i < member_names.size(); ++i)
+    {
+        const auto *member = type_info.getMember(member_names[i]);
+        json << "    {\n";
+        json << "      \"name\": \"" << member->name << "\",\n";
+        json << "      \"type\": \"" << member->type_name << "\",\n";
+        json << "      \"value\": ";
+
+        // Serialize current value
+        auto value = member->getter(this);
+        if (member->type_name == "string")
+        {
+            json << "\"" << std::any_cast<std::string>(value) << "\"";
+        }
+        else if (member->type_name == "int")
+        {
+            json << std::any_cast<int>(value);
+        }
+        else if (member->type_name == "double")
+        {
+            json << std::any_cast<double>(value);
+        }
+        else if (member->type_name == "bool")
+        {
+            json << (std::any_cast<bool>(value) ? "true" : "false");
+        }
+        else
+        {
+            json << "null";
+        }
+
+        json << "\n    }";
+        if (i < member_names.size() - 1)
+            json << ",";
+        json << "\n";
+    }
+
+    json << "  ],\n";
+    json << "  \"methods\": [\n";
+
+    auto method_names = type_info.getMethodNames();
+    for (size_t i = 0; i < method_names.size(); ++i)
+    {
+        const auto *method = type_info.getMethod(method_names[i]);
+        json << "    {\n";
+        json << "      \"name\": \"" << method->name << "\",\n";
+        json << "      \"returnType\": \"" << method->return_type << "\",\n";
+        json << "      \"parameters\": [";
+
+        for (size_t j = 0; j < method->parameter_types.size(); ++j)
+        {
+            json << "\"" << method->parameter_types[j] << "\"";
+            if (j < method->parameter_types.size() - 1)
+                json << ", ";
+        }
+
+        json << "]\n    }";
+        if (i < method_names.size() - 1)
+            json << ",";
+        json << "\n";
+    }
+
+    json << "  ]\n";
+    json << "}";
+
+    return json.str();
 }

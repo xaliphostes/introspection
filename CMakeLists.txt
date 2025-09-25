@@ -8,10 +8,5 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 include_directories(include)
 
-# Add the executable
-add_executable(introspection_demo main.cxx)
-
-# Optional: Set output directory
-set_target_properties(introspection_demo PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin
-)
+add_subdirectory(examples/simple)
+add_subdirectory(examples/http)
