@@ -151,42 +151,12 @@ void Vehicle::registerIntrospection(TypeRegistrar<Vehicle> reg)
         .method("getInfo", &Vehicle::getInfo);
 }
 
+// ------------------------------------------------------------
+
 // pybind11 module definition using automatic binding
 PYBIND11_MODULE(introspection_demo, m)
 {
-    m.doc() = "Automatic pybind11 bindings using C++ introspection";
-
-    // Create the automatic binding generator
+    m.doc() = "Automatic Python bindings using C++ introspection";
     AutoBindingGenerator generator(m);
-
-    try
-    {
-        // Automatically bind all introspectable classes
-        auto person_class = generator.bind_class<Person>();
-        auto vehicle_class = generator.bind_class<Vehicle>();
-
-        // You can still add custom bindings after auto-generation
-        person_class.def(py::init<const std::string &, int, double>(),
-                         "Constructor with name, age, and height",
-                         py::arg("name"), py::arg("age"), py::arg("height"));
-
-        vehicle_class.def(py::init<const std::string &, const std::string &, int>(),
-                          "Constructor with brand, model, and year",
-                          py::arg("brand"), py::arg("model"), py::arg("year"));
-
-        // Add module-level functions
-        m.def("create_person", []()
-              { return Person("John Doe", 25, 1.75); }, "Create a default person");
-
-        m.def("create_vehicle", []()
-              { return Vehicle("Toyota", "Camry", 2020); }, "Create a default vehicle");
-
-        // Add introspection utilities at module level
-        m.def("get_all_classes", []()
-              { return std::vector<std::string>{"Person", "Vehicle"}; }, "Get list of all bound classes");
-    }
-    catch (const std::exception &e)
-    {
-        throw std::runtime_error(std::string("Failed to create bindings: ") + e.what());
-    }
+    generator.bind_class<Person, Vehicle>();
 }
