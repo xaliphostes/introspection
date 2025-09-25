@@ -28,6 +28,23 @@ namespace py = pybind11;
  *     PYBIND11_AUTO_BIND_CLASS(m, Person);
  * }
  * ```
+ * 
+ * @example
+ * ```python
+ * import introspection as I
+ * 
+ * # Create objects using constructors
+ * person = I.Person("Alice", 30, 1.65)
+ * vehicle = I.Vehicle("Honda", "Civic", 2022)
+ * 
+ * # Call methods
+ * person.introduce()
+ * person.celebrate_birthday() # Note: pybind11 converts camelCase to snake_case
+ * 
+ * vehicle.start()
+ * vehicle.drive(100.5)
+ * print(vehicle.get_info())
+ * ```
  */
 class AutoBindingGenerator
 {
