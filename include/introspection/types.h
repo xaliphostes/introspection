@@ -19,25 +19,13 @@ public:
     template <typename MemberType>
     TypeRegistrar &member(const std::string &name, MemberType Class::*member_ptr);
 
-    // Method registration for methods with no parameters
-    template <typename ReturnType>
-    TypeRegistrar &method(const std::string &name, ReturnType (Class::*method_ptr)());
+    // Variadic method registration - handles any number of parameters
+    template <typename ReturnType, typename... Args>
+    TypeRegistrar &method(const std::string &name, ReturnType (Class::*method_ptr)(Args...));
 
-    // Method registration for const methods with no parameters
-    template <typename ReturnType>
-    TypeRegistrar &method(const std::string &name, ReturnType (Class::*method_ptr)() const);
-
-    // Method registration for methods with 1 parameter
-    template <typename ReturnType, typename Param1>
-    TypeRegistrar &method(const std::string &name, ReturnType (Class::*method_ptr)(Param1));
-
-    // Method registration for methods with 2 parameters
-    template <typename ReturnType, typename Param1, typename Param2>
-    TypeRegistrar &method(const std::string &name, ReturnType (Class::*method_ptr)(Param1, Param2));
-
-    // Method registration for methods with 3 parameters
-    template <typename ReturnType, typename Param1, typename Param2, typename Param3>
-    TypeRegistrar &method(const std::string &name, ReturnType (Class::*method_ptr)(Param1, Param2, Param3));
+    // Variadic const method registration
+    template <typename ReturnType, typename... Args>
+    TypeRegistrar &method(const std::string &name, ReturnType (Class::*method_ptr)(Args...) const);
 };
 
 #include "inline/types.hxx"

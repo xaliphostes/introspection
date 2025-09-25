@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 template <typename T>
 inline std::string getTypeName()
 {
@@ -93,128 +95,105 @@ inline TypeRegistrar<Class> &TypeRegistrar<Class>::member(const std::string &nam
     return *this;
 }
 
+// Helper function to create parameter type vector from parameter pack
+template <typename... Args>
+std::vector<std::string> createParameterTypeVector()
+{
+    if constexpr (sizeof...(Args) == 0)
+    {
+        return std::vector<std::string>{};
+    }
+    else
+    {
+        return std::vector<std::string>{getTypeName<Args>()...};
+    }
+}
+
+// Helper function to cast arguments from std::any vector to the correct types
+// This uses index_sequence to unpack the arguments at compile time
+template <typename Class, typename ReturnType, typename... Args, std::size_t... I>
+inline std::any callMethodImpl(Class *obj, ReturnType (Class::*method_ptr)(Args...),
+                               const std::vector<std::any> &args, std::index_sequence<I...>)
+{
+    if constexpr (std::is_void_v<ReturnType>)
+    {
+        (obj->*method_ptr)(std::any_cast<Args>(args[I])...);
+        return std::any{};
+    }
+    else
+    {
+        return std::any{(obj->*method_ptr)(std::any_cast<Args>(args[I])...)};
+    }
+}
+
+// Same for const methods
+template <typename Class, typename ReturnType, typename... Args, std::size_t... I>
+inline std::any callConstMethodImpl(Class *obj, ReturnType (Class::*method_ptr)(Args...) const,
+                                    const std::vector<std::any> &args, std::index_sequence<I...>)
+{
+    if constexpr (std::is_void_v<ReturnType>)
+    {
+        (obj->*method_ptr)(std::any_cast<Args>(args[I])...);
+        return std::any{};
+    }
+    else
+    {
+        return std::any{(obj->*method_ptr)(std::any_cast<Args>(args[I])...)};
+    }
+}
+
+// Variadic method registration for non-const methods
 template <typename Class>
-template <typename ReturnType>
-inline TypeRegistrar<Class> &TypeRegistrar<Class>::method(const std::string &name, ReturnType (Class::*method_ptr)())
+template <typename ReturnType, typename... Args>
+inline TypeRegistrar<Class> &TypeRegistrar<Class>::method(const std::string &name,
+                                                          ReturnType (Class::*method_ptr)(Args...))
 {
     info.addMethod(std::make_unique<MethodInfo>(
         name,
         getTypeName<ReturnType>(),
-        std::vector<std::string>(),
-        [method_ptr](void *obj, const std::vector<std::any> &) -> std::any
+        createParameterTypeVector<Args...>(),
+        [method_ptr, name](void *obj, const std::vector<std::any> &args) -> std::any
         {
             auto *typed_obj = static_cast<Class *>(obj);
-            if constexpr (std::is_void_v<ReturnType>)
+
+            // Validate argument count at runtime
+            if (args.size() != sizeof...(Args))
             {
-                (typed_obj->*method_ptr)();
-                return std::any{};
+                throw std::runtime_error("Incorrect number of arguments for method '" + name +
+                                         "'. Expected " + std::to_string(sizeof...(Args)) +
+                                         ", got " + std::to_string(args.size()));
             }
-            else
-            {
-                return std::any{(typed_obj->*method_ptr)()};
-            }
+
+            // Use index_sequence to unpack arguments
+            return callMethodImpl(typed_obj, method_ptr, args, std::index_sequence_for<Args...>{});
         }));
     return *this;
 }
 
+// Variadic method registration for const methods
 template <typename Class>
-template <typename ReturnType>
-inline TypeRegistrar<Class> &TypeRegistrar<Class>::method(const std::string &name, ReturnType (Class::*method_ptr)() const)
+template <typename ReturnType, typename... Args>
+inline TypeRegistrar<Class> &TypeRegistrar<Class>::method(const std::string &name,
+                                                          ReturnType (Class::*method_ptr)(Args...) const)
 {
     info.addMethod(std::make_unique<MethodInfo>(
         name,
         getTypeName<ReturnType>(),
-        std::vector<std::string>(),
-        [method_ptr](void *obj, const std::vector<std::any> &) -> std::any
+        createParameterTypeVector<Args...>(),
+        [method_ptr, name](void *obj, const std::vector<std::any> &args) -> std::any
         {
             auto *typed_obj = static_cast<Class *>(obj);
-            if constexpr (std::is_void_v<ReturnType>)
-            {
-                (typed_obj->*method_ptr)();
-                return std::any{};
-            }
-            else
-            {
-                return std::any{(typed_obj->*method_ptr)()};
-            }
-        }));
-    return *this;
-}
 
-template <typename Class>
-template <typename ReturnType, typename Param1>
-inline TypeRegistrar<Class> &TypeRegistrar<Class>::method(const std::string &name, ReturnType (Class::*method_ptr)(Param1))
-{
-    info.addMethod(std::make_unique<MethodInfo>(
-        name,
-        getTypeName<ReturnType>(),
-        std::vector<std::string>{getTypeName<Param1>()},
-        [method_ptr](void *obj, const std::vector<std::any> &args) -> std::any
-        {
-            auto *typed_obj = static_cast<Class *>(obj);
-            auto param1 = std::any_cast<Param1>(args[0]);
-            if constexpr (std::is_void_v<ReturnType>)
+            // Validate argument count at runtime
+            if (args.size() != sizeof...(Args))
             {
-                (typed_obj->*method_ptr)(param1);
-                return std::any{};
+                throw std::runtime_error("Incorrect number of arguments for method '" + name +
+                                         "'. Expected " + std::to_string(sizeof...(Args)) +
+                                         ", got " + std::to_string(args.size()));
             }
-            else
-            {
-                return std::any{(typed_obj->*method_ptr)(param1)};
-            }
-        }));
-    return *this;
-}
 
-template <typename Class>
-template <typename ReturnType, typename Param1, typename Param2>
-inline TypeRegistrar<Class> &TypeRegistrar<Class>::method(const std::string &name, ReturnType (Class::*method_ptr)(Param1, Param2))
-{
-    info.addMethod(std::make_unique<MethodInfo>(
-        name,
-        getTypeName<ReturnType>(),
-        std::vector<std::string>{getTypeName<Param1>(), getTypeName<Param2>()},
-        [method_ptr](void *obj, const std::vector<std::any> &args) -> std::any
-        {
-            auto *typed_obj = static_cast<Class *>(obj);
-            auto param1 = std::any_cast<Param1>(args[0]);
-            auto param2 = std::any_cast<Param2>(args[1]);
-            if constexpr (std::is_void_v<ReturnType>)
-            {
-                (typed_obj->*method_ptr)(param1, param2);
-                return std::any{};
-            }
-            else
-            {
-                return std::any{(typed_obj->*method_ptr)(param1, param2)};
-            }
-        }));
-    return *this;
-}
-
-template <typename Class>
-template <typename ReturnType, typename Param1, typename Param2, typename Param3>
-inline TypeRegistrar<Class> &TypeRegistrar<Class>::method(const std::string &name, ReturnType (Class::*method_ptr)(Param1, Param2, Param3))
-{
-    info.addMethod(std::make_unique<MethodInfo>(
-        name,
-        getTypeName<ReturnType>(),
-        std::vector<std::string>{getTypeName<Param1>(), getTypeName<Param2>(), getTypeName<Param3>()},
-        [method_ptr](void *obj, const std::vector<std::any> &args) -> std::any
-        {
-            auto *typed_obj = static_cast<Class *>(obj);
-            auto param1 = std::any_cast<Param1>(args[0]);
-            auto param2 = std::any_cast<Param2>(args[1]);
-            auto param3 = std::any_cast<Param3>(args[2]);
-            if constexpr (std::is_void_v<ReturnType>)
-            {
-                (typed_obj->*method_ptr)(param1, param2, param3);
-                return std::any{};
-            }
-            else
-            {
-                return std::any{(typed_obj->*method_ptr)(param1, param2, param3)};
-            }
+            // Use index_sequence to unpack arguments
+            return callConstMethodImpl(typed_obj, method_ptr, args, std::index_sequence_for<Args...>{});
         }));
     return *this;
 }

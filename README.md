@@ -93,7 +93,7 @@ All introspectable classes inherit from `Introspectable` and gain these methods:
 Fluent registration API:
 
 - `member(name, &Class::member)` - Register a member variable
-- `method(name, &Class::method)` - Register a method (supports 0-2 parameters)
+- `method(name, &Class::method)` - Register a method (supports 0-n parameters)
 
 Both return `TypeRegistrar&` for method chaining.
 
@@ -120,7 +120,6 @@ g++ -std=c++17 main.cpp -o your_app
 
 ## Limitations
 
-- Maximum 3 method parameters (easily extensible)
 - Requires explicit registration of members/methods
 - Runtime overhead due to `std::any` and function pointers
 - No inheritance introspection (each class registers independently)
