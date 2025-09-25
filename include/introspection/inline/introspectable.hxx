@@ -1,7 +1,7 @@
 #include <sstream>
 
 // Implementation of Introspectable methods (after TypeInfo is fully defined)
-inline std::any Introspectable::getMemberValue(const std::string &member_name) const
+inline Arg Introspectable::getMemberValue(const std::string &member_name) const
 {
     const auto &type_info = getTypeInfo();
     const auto *member = type_info.getMember(member_name);
@@ -12,7 +12,7 @@ inline std::any Introspectable::getMemberValue(const std::string &member_name) c
     throw std::runtime_error("Member '" + member_name + "' not found");
 }
 
-inline void Introspectable::setMemberValue(const std::string &member_name, const std::any &value)
+inline void Introspectable::setMemberValue(const std::string &member_name, const Arg &value)
 {
     const auto &type_info = getTypeInfo();
     const auto *member = type_info.getMember(member_name);
@@ -26,7 +26,7 @@ inline void Introspectable::setMemberValue(const std::string &member_name, const
     }
 }
 
-inline std::any Introspectable::callMethod(const std::string &method_name, const std::vector<std::any> &args)
+inline Arg Introspectable::callMethod(const std::string &method_name, const Args &args)
 {
     const auto &type_info = getTypeInfo();
     const auto *method = type_info.getMethod(method_name);

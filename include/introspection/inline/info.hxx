@@ -1,11 +1,11 @@
 inline MemberInfo::MemberInfo(const std::string &n, const std::string &t,
                               std::function<std::any(const void *)> g,
-                              std::function<void(void *, const std::any &)> s)
+                              std::function<void(void *, const Arg &)> s)
     : name(n), type_name(t), getter(g), setter(s) {}
 
 inline MethodInfo::MethodInfo(const std::string &n, const std::string &ret_type,
                               const std::vector<std::string> &param_types,
-                              std::function<std::any(void *, const std::vector<std::any> &)> inv)
+                              std::function<std::any(void *, const Args &)> inv)
     : name(n), return_type(ret_type), parameter_types(param_types), invoker(inv) {}
 
 inline void TypeInfo::addMember(std::unique_ptr<MemberInfo> member)

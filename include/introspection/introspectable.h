@@ -13,8 +13,8 @@ public:
 
     // Introspection utility methods
     std::any getMemberValue(const std::string &member_name) const;
-    void setMemberValue(const std::string &member_name, const std::any &value);
-    std::any callMethod(const std::string &method_name, const std::vector<std::any> &args = {});
+    void setMemberValue(const std::string &member_name, const Arg &value);
+    std::any callMethod(const std::string &method_name, const Args &args = {});
     std::vector<std::string> getMemberNames() const;
     std::vector<std::string> getMethodNames() const;
     std::string getClassName() const;

@@ -16,7 +16,7 @@ A lightweight, header-only C++ introspection system that enables runtime inspect
 ### 1. Make Your Class Introspectable
 
 ```cpp
-#include "introspection.hpp"
+#include "introspection.h"
 
 class Person : public Introspectable {
     INTROSPECTABLE(Person)

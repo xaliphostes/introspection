@@ -6,18 +6,21 @@
 #include <any>
 #include <memory>
 
+using Arg = std::any;
+using Args = std::vector<Arg>;
+
 // Holds information about a data member
 class MemberInfo
 {
 public:
     std::string name;
     std::string type_name;
-    std::function<std::any(const void *)> getter;
-    std::function<void(void *, const std::any &)> setter;
+    std::function<Arg(const void *)> getter;
+    std::function<void(void *, const Arg &)> setter;
 
     MemberInfo(const std::string &n, const std::string &t,
-               std::function<std::any(const void *)> g,
-               std::function<void(void *, const std::any &)> s);
+               std::function<Arg(const void *)> g,
+               std::function<void(void *, const Arg &)> s);
 };
 
 // Holds information about a method
@@ -27,11 +30,11 @@ public:
     std::string name;
     std::string return_type;
     std::vector<std::string> parameter_types;
-    std::function<std::any(void *, const std::vector<std::any> &)> invoker;
+    std::function<Arg(void *, const Args &)> invoker;
 
     MethodInfo(const std::string &n, const std::string &ret_type,
                const std::vector<std::string> &param_types,
-               std::function<std::any(void *, const std::vector<std::any> &)> inv);
+               std::function<Arg(void *, const Args &)> inv);
 };
 
 // Holds complete type information
