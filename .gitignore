@@ -1,0 +1,8 @@
+bin
+build
+main_coverage.info
+Testing
+**/.DS_STORE
+
+examples/distance-field/*.png
+examples/interpolate-field/*.png
