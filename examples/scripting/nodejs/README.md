@@ -1,0 +1,1 @@
+# Auto-binding for JavaScript and TypeScript

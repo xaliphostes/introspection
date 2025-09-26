@@ -1,5 +1,20 @@
 # C++ Introspection Library
 
+<p align="center">
+  <img src="media/logo.png" alt="Logo introspection" width="200">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/static/v1?label=Linux&logo=linux&logoColor=white&message=soon&color=red" alt="Linux support">
+  <img src="https://img.shields.io/static/v1?label=macOS&logo=apple&logoColor=white&message=support&color=success" alt="macOS support">
+  <img src="https://img.shields.io/static/v1?label=Windows&logo=windows&logoColor=white&message=support&color=sucess" alt="Windows support">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/C%2B%2B-20+-blue.svg" alt="Language">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
+</p>
+
 A lightweight, header-only C++ introspection system that enables runtime inspection and manipulation of class members and methods without external dependencies.
 
 This C++ introspection system enables automatic language binding generation for multiple scripting languages without requiring manual binding code for each class member and method.
@@ -10,7 +25,7 @@ This C++ introspection system enables automatic language binding generation for 
 
 - For JavaScript (via V8, Node.js addons, or Emscripten), the reflection data enables automatic generation of property descriptors and method wrappers, allowing seamless integration where JavaScript objects can directly access C++ class members as properties and call methods with automatic type conversion between JavaScript values and C++ types.
 
-The key advantage is that once a C++ class inherits from Introspectable and registers its members/methods, it can be automatically exposed to all three languages using the same introspection metadata, drastically reducing the maintenance burden of keeping multiple language bindings synchronized with C++ class changes.
+The key advantage is that once a C++ class inherits from Introspectable and registers its members/methods, it can be automatically exposed to all scripting languages using the same introspection metadata, drastically reducing the maintenance burden of keeping multiple language bindings synchronized with C++ class changes.
 
 ## Features
 
@@ -19,7 +34,7 @@ The key advantage is that once a C++ class inherits from Introspectable and regi
 - **Type-Safe**: Compile-time registration with runtime type checking
 - **Template-Based**: Clean, fluent registration API using member/method pointers
 - **Zero Dependencies**: No external libraries required
-- **C++17 Compatible**: Uses modern C++ features like `std::any` and `if constexpr`
+- **C++17/20 Compatible**: Uses modern C++ features like `std::any` and `if constexpr`
 
 ## Quick Start
 
