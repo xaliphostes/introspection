@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/C%2B%2B-20+-blue.svg" alt="Language">
+  <img src="https://img.shields.io/badge/C%2B%2B-17+-blue.svg" alt="Language">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
 </p>
 
