@@ -184,7 +184,7 @@ void example2_with_auto_updates()
     launchWebSocketGUI(person);
 }
 
-// Example 3: Multiple objects (you can extend this)
+// Example 3: Multiple objects (we can extend this)
 void example3_multiple_objects()
 {
     std::cout << "\n=== Example 3: Multiple Objects ===" << std::endl;

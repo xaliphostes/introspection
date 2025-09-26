@@ -88,7 +88,7 @@ std::string generateHtmlForm(const Introspectable &obj)
     html << "  const formData = new FormData(document.getElementById('objectForm'));\n";
     html << "  const data = Object.fromEntries(formData);\n";
     html << "  console.log('Update object with:', data);\n";
-    html << "  // Here you would send data back to C++ via WebSocket/HTTP\n";
+    html << "  // Here we would send data back to C++ via WebSocket/HTTP\n";
     html << "}\n\n";
     html << "function callMethod(methodName) {\n";
     html << "  console.log('Call method:', methodName);\n";

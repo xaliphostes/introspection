@@ -10,7 +10,7 @@
 #include <set>
 #include <memory>
 
-// Simple JSON helper (you can replace with nlohmann/json or jsoncpp)
+// Simple JSON helper (we can replace with nlohmann/json or jsoncpp)
 class SimpleJson
 {
 public:

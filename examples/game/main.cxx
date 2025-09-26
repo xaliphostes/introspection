@@ -2,7 +2,7 @@
 #include <iostream>
 #include <sstream>
 
-// Define your Vector3D class
+// Define a Vector3D class
 class Vector3D
 {
 public:

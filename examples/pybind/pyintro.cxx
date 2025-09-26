@@ -1,23 +1,22 @@
-// automatic_binding_example.cpp - Complete example with CMakeLists.txt
+#include "auto_binding_generator.h"
+#include <introspection/introspectable.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <introspection/introspectable.h>
-#include "auto_binding_generator.h" // Include the generator from previous artifact
 
-// Example classes using your introspection system
-class Person : public Introspectable
-{
+// Example classes using the introspection system
+class Person : public Introspectable {
     INTROSPECTABLE(Person)
 
-private:
+  private:
     std::string name;
     int age;
     double height;
     bool isActive;
 
-public:
+  public:
     Person() : name(""), age(0), height(0.0), isActive(true) {}
-    Person(const std::string &n, int a, double h) : name(n), age(a), height(h), isActive(true) {}
+    Person(const std::string &n, int a, double h)
+        : name(n), age(a), height(h), isActive(true) {}
 
     // Getters and setters
     std::string getName() const { return name; }
@@ -30,27 +29,25 @@ public:
     void setIsActive(bool active) { isActive = active; }
 
     // Methods
-    void introduce() const
-    {
+    void introduce() const {
         std::cout << "Hi! I'm " << name << ", " << age << " years old, "
                   << height << "m tall." << std::endl;
     }
 
-    void celebrateBirthday()
-    {
+    void celebrateBirthday() {
         age++;
-        std::cout << "🎉 " << name << " is now " << age << " years old!" << std::endl;
+        std::cout << "🎉 " << name << " is now " << age << " years old!"
+                  << std::endl;
     }
 
-    std::string getDescription() const
-    {
+    std::string getDescription() const {
         return name + " (" + std::to_string(age) + " years, " +
-               std::to_string(height) + "m, " + (isActive ? "active" : "inactive") + ")";
+               std::to_string(height) + "m, " +
+               (isActive ? "active" : "inactive") + ")";
     }
 };
 
-void Person::registerIntrospection(TypeRegistrar<Person> reg)
-{
+void Person::registerIntrospection(TypeRegistrar<Person> reg) {
     reg.member("name", &Person::name)
         .member("age", &Person::age)
         .member("height", &Person::height)
@@ -69,18 +66,17 @@ void Person::registerIntrospection(TypeRegistrar<Person> reg)
 }
 
 // Another example class
-class Vehicle : public Introspectable
-{
+class Vehicle : public Introspectable {
     INTROSPECTABLE(Vehicle)
 
-private:
+  private:
     std::string brand;
     std::string model;
     int year;
     double mileage;
     bool isRunning;
 
-public:
+  public:
     Vehicle() : brand(""), model(""), year(0), mileage(0.0), isRunning(false) {}
     Vehicle(const std::string &b, const std::string &m, int y)
         : brand(b), model(m), year(y), mileage(0.0), isRunning(false) {}
@@ -97,40 +93,33 @@ public:
     bool getIsRunning() const { return isRunning; }
 
     // Methods
-    void start()
-    {
+    void start() {
         isRunning = true;
         std::cout << brand << " " << model << " started!" << std::endl;
     }
 
-    void stop()
-    {
+    void stop() {
         isRunning = false;
         std::cout << brand << " " << model << " stopped!" << std::endl;
     }
 
-    void drive(double miles)
-    {
-        if (isRunning)
-        {
+    void drive(double miles) {
+        if (isRunning) {
             mileage += miles;
-            std::cout << "Drove " << miles << " miles. Total mileage: " << mileage << std::endl;
-        }
-        else
-        {
+            std::cout << "Drove " << miles
+                      << " miles. Total mileage: " << mileage << std::endl;
+        } else {
             std::cout << "Can't drive - vehicle is not running!" << std::endl;
         }
     }
 
-    std::string getInfo() const
-    {
+    std::string getInfo() const {
         return brand + " " + model + " (" + std::to_string(year) + ") - " +
                std::to_string(mileage) + " miles";
     }
 };
 
-void Vehicle::registerIntrospection(TypeRegistrar<Vehicle> reg)
-{
+void Vehicle::registerIntrospection(TypeRegistrar<Vehicle> reg) {
     reg.member("brand", &Vehicle::brand)
         .member("model", &Vehicle::model)
         .member("year", &Vehicle::year)
@@ -154,8 +143,7 @@ void Vehicle::registerIntrospection(TypeRegistrar<Vehicle> reg)
 // ------------------------------------------------------------
 
 // pybind11 module definition using automatic binding
-PYBIND11_MODULE(introspection_demo, m)
-{
+PYBIND11_MODULE(introspection_demo, m) {
     m.doc() = "Automatic Python bindings using C++ introspection";
     AutoBindingGenerator generator(m);
     generator.bind_class<Person, Vehicle>();

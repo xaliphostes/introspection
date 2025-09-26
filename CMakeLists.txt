@@ -9,5 +9,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 include_directories(include)
 
 add_subdirectory(examples/simple)
-add_subdirectory(examples/http)
 add_subdirectory(examples/game)
+
+# add_subdirectory(examples/pybind)
+# add_subdirectory(examples/http)

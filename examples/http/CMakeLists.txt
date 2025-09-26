@@ -18,11 +18,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE httplib::httplib)
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 
-# Optional: Set output directory
-# set_target_properties(${PROJECT_NAME} PROPERTIES
-#     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
-# )
-
 # Platform-specific libraries
 if(WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32 wsock32)

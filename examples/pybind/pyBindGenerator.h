@@ -83,7 +83,7 @@ public:
         // Create pybind11 class
         auto py_class = py::class_<T>(module, final_class_name.c_str());
 
-        // Bind constructors (you may want to customize this)
+        // Bind constructors (we may want to customize this)
         bind_constructors<T>(py_class, type_info);
 
         // Bind all members as properties
@@ -114,7 +114,7 @@ private:
         // Default constructor
         py_class.def(py::init<>(), "Default constructor");
 
-        // Note: For more sophisticated constructor binding, you'd need to extend
+        // Note: For more sophisticated constructor binding, we need to extend
         // the introspection system to include constructor information
         // For now, we rely on the default constructor and property setters
     }
@@ -295,7 +295,7 @@ private:
             else
             {
                 // For custom types, try generic casting
-                // You may need to extend this for your custom types
+                // we may need to extend this for our custom types
                 return py::cast(value);
             }
         }
