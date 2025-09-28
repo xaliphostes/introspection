@@ -1,7 +1,4 @@
-#include "auto_binding_generator.h"
 #include <introspection/introspectable.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
 
 // Example classes using the introspection system
 class Person : public Introspectable {
@@ -138,13 +135,4 @@ void Vehicle::registerIntrospection(TypeRegistrar<Vehicle> reg) {
         .method("stop", &Vehicle::stop)
         .method("drive", &Vehicle::drive)
         .method("getInfo", &Vehicle::getInfo);
-}
-
-// ------------------------------------------------------------
-
-// pybind11 module definition using automatic binding
-PYBIND11_MODULE(introspection_demo, m) {
-    m.doc() = "Automatic Python bindings using C++ introspection";
-    AutoBindingGenerator generator(m);
-    generator.bind_class<Person, Vehicle>();
 }
