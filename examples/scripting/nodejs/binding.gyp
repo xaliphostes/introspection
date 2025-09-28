@@ -7,7 +7,7 @@
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",  # N-API headers
-        "../../include"                                        # Our introspection headers
+        "../../../include"                                        # Our introspection headers
       ],
       "dependencies": [
         "<!(node -p \"require('node-addon-api').gyp\")"       # N-API dependency

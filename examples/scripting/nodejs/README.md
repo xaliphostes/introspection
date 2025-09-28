@@ -43,12 +43,11 @@ void Person::registerIntrospection(TypeRegistrar<Person> reg) {
 ### 2. Create Node.js Addon (Only 3 Lines!)
 
 ```cpp
-#include "auto_js_binding_generator.h"
+#include "JavascriptBindingGenerator.h"
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-    AutoJSBindingGenerator generator(env, exports);
-    generator.bind_classes<Person, Vehicle>();  // Bind multiple classes
-    generator.add_utilities();                  // Add module utilities
+    JavascriptBindingGenerator generator(env, exports);
+    generator.bind_classes<Person>();  // Bind multiple classes
     return exports;
 }
 
@@ -219,11 +218,9 @@ Napi::Value GetAge(const Napi::CallbackInfo& info) { /* ... */ }
 // ... repeat for every member and method
 ```
 
-### Automatic Bindings (3 lines)
+### Automatic Bindings (1 line)
 ```cpp
-AutoJSBindingGenerator generator(env, exports);
-generator.bind_classes<Person, Vehicle>();
-generator.add_utilities();
+JavascriptBindingGenerator(env, exports).bind_classes<Person, Vehicle>();
 ```
 
 ## Extending the Generator
@@ -231,7 +228,7 @@ generator.add_utilities();
 To add support for custom types:
 
 ```cpp
-// In auto_js_binding_generator.h, add to convert_any_to_js:
+// In JavascriptBindingGenerator.h, add to convert_any_to_js:
 if (type_name == "Vector3D") {
     auto vec = std::any_cast<Vector3D>(value);
     Napi::Object js_vec = Napi::Object::New(env);

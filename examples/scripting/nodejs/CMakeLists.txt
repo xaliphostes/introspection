@@ -27,7 +27,7 @@ message(STATUS "Found Node.js: ${NODE_EXECUTABLE} (version ${NODE_VERSION})")
 message(STATUS "Found npm: ${NPM_EXECUTABLE}")
 
 # Include directories
-include_directories(../../include)
+include_directories(../../../include)
 
 # Copy files to build directory
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/package.json 
