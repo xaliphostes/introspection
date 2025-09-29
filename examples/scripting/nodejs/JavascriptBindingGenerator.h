@@ -7,7 +7,9 @@
 #include <unordered_set>
 
 /**
- * @brief Automatic Node.js N-API binding generator for introspectable classes
+ * @brief Automatic Node.js N-API binding generator for introspectable classes.
+ * Binded types are double, int, float, string, bool, vector<int>,
+ * vector<double>, vector<string>
  * @example
  * ```cpp
  * // Usage example:
@@ -72,16 +74,25 @@
  * ```
  */
 class AutoJSBindingGenerator {
-  private:
-    Napi::Env env;
-    Napi::Object exports;
-    std::unordered_set<std::string> bound_classes;
-    std::unordered_map<std::string, Napi::Function> constructors;
-
   public:
-    AutoJSBindingGenerator(Napi::Env env, Napi::Object exports)
-        : env(env), exports(exports) {}
+    // Type converter function signatures
+    using CppToJsConverter = std::function<Napi::Value(Napi::Env, const std::any &)>;
+    using JsToCppConverter = std::function<std::any(const Napi::Value &)>;
 
+    AutoJSBindingGenerator(Napi::Env env, Napi::Object exports)
+        : env(env), exports(exports) {
+        register_builtin_converters();
+    }
+
+    /**
+     * @brief Register a custom type converter at runtime
+     */
+    void register_type_converter(const std::string &type_name,
+                                 CppToJsConverter to_js,
+                                 JsToCppConverter to_cpp) {
+        cpp_to_js_converters[type_name] = to_js;
+        js_to_cpp_converters[type_name] = to_cpp;
+    }
     /**
      * @brief Automatically bind an introspectable class to JavaScript
      * @tparam T The introspectable class type
@@ -153,6 +164,74 @@ class AutoJSBindingGenerator {
     }
 
   private:
+    Napi::Env env;
+    Napi::Object exports;
+    std::unordered_set<std::string> bound_classes;
+    std::unordered_map<std::string, Napi::Function> constructors;
+    std::unordered_map<std::string, CppToJsConverter> cpp_to_js_converters;
+    std::unordered_map<std::string, JsToCppConverter> js_to_cpp_converters;
+
+    void register_builtin_converters() {
+        // Array converters
+        register_type_converter(
+            "vector<int>",
+            [](Napi::Env env, const std::any &value) -> Napi::Value {
+                auto vec = std::any_cast<std::vector<int>>(value);
+                auto arr = Napi::Array::New(env, vec.size());
+                for (size_t i = 0; i < vec.size(); ++i) {
+                    arr.Set(i, vec[i]);
+                }
+                return arr;
+            },
+            [](const Napi::Value &js_val) -> std::any {
+                auto arr = js_val.As<Napi::Array>();
+                std::vector<int> vec;
+                for (uint32_t i = 0; i < arr.Length(); ++i) {
+                    vec.push_back(arr.Get(i).As<Napi::Number>().Int32Value());
+                }
+                return vec;
+            });
+
+        // Add more array types as needed
+        register_type_converter(
+            "vector<double>",
+            [](Napi::Env env, const std::any &value) -> Napi::Value {
+                auto vec = std::any_cast<std::vector<double>>(value);
+                auto arr = Napi::Array::New(env, vec.size());
+                for (size_t i = 0; i < vec.size(); ++i) {
+                    arr.Set(i, vec[i]);
+                }
+                return arr;
+            },
+            [](const Napi::Value &js_val) -> std::any {
+                auto arr = js_val.As<Napi::Array>();
+                std::vector<double> vec;
+                for (uint32_t i = 0; i < arr.Length(); ++i) {
+                    vec.push_back(arr.Get(i).As<Napi::Number>().DoubleValue());
+                }
+                return vec;
+            });
+
+        register_type_converter(
+            "vector<string>",
+            [](Napi::Env env, const std::any &value) -> Napi::Value {
+                auto vec = std::any_cast<std::vector<std::string>>(value);
+                auto arr = Napi::Array::New(env, vec.size());
+                for (size_t i = 0; i < vec.size(); ++i) {
+                    arr.Set(i, vec[i]);
+                }
+                return arr;
+            },
+            [](const Napi::Value &js_val) -> std::any {
+                auto arr = js_val.As<Napi::Array>();
+                std::vector<std::string> vec;
+                for (uint32_t i = 0; i < arr.Length(); ++i) {
+                    vec.push_back(arr.Get(i).As<Napi::String>().Utf8Value());
+                }
+                return vec;
+            });
+    }
+
     template <typename T>
     Napi::Function create_js_class(const std::string &class_name,
                                    const TypeInfo &type_info) {
@@ -578,6 +657,20 @@ class AutoJSBindingGenerator {
             return env.Undefined();
         }
 
+        // CHECK CUSTOM CONVERTERS FIRST
+        auto it = cpp_to_js_converters.find(type_name);
+        if (it != cpp_to_js_converters.end()) {
+            try {
+                return it->second(env, value);
+            } catch (const std::exception &e) {
+                Napi::TypeError::New(env, "Custom converter failed for '" +
+                                              type_name + "': " + e.what())
+                    .ThrowAsJavaScriptException();
+                return env.Undefined();
+            }
+        }
+
+        // FALLBACK TO BUILT-IN TYPES
         try {
             if (type_name == "string") {
                 return Napi::String::New(env,
@@ -591,7 +684,6 @@ class AutoJSBindingGenerator {
             } else if (type_name == "bool") {
                 return Napi::Boolean::New(env, std::any_cast<bool>(value));
             } else {
-                // For custom types, return undefined for now
                 return env.Undefined();
             }
         } catch (const std::bad_any_cast &e) {
@@ -605,6 +697,18 @@ class AutoJSBindingGenerator {
     // Convert JavaScript value to std::any based on expected type
     std::any convert_js_to_any(const Napi::Value &js_value,
                                const std::string &type_name) const {
+        // CHECK CUSTOM CONVERTERS FIRST
+        auto it = js_to_cpp_converters.find(type_name);
+        if (it != js_to_cpp_converters.end()) {
+            try {
+                return it->second(js_value);
+            } catch (const std::exception &e) {
+                throw std::runtime_error("Custom converter failed for '" +
+                                         type_name + "': " + e.what());
+            }
+        }
+
+        // FALLBACK TO BUILT-IN TYPES
         try {
             if (type_name == "string") {
                 if (js_value.IsString()) {

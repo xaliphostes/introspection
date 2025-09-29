@@ -40,14 +40,13 @@ void Person::registerIntrospection(TypeRegistrar<Person> reg) {
 }
 ```
 
-### 2. Create Node.js Addon (Only 3 Lines!)
+### 2. Create Node.js Addon (Only 1 line!)
 
 ```cpp
 #include "JavascriptBindingGenerator.h"
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-    JavascriptBindingGenerator generator(env, exports);
-    generator.bind_classes<Person>();  // Bind multiple classes
+    JavascriptBindingGenerator(env, exports).bind_classes<Person>();
     return exports;
 }
 
@@ -228,15 +227,25 @@ JavascriptBindingGenerator(env, exports).bind_classes<Person, Vehicle>();
 To add support for custom types:
 
 ```cpp
-// In JavascriptBindingGenerator.h, add to convert_any_to_js:
-if (type_name == "Vector3D") {
-    auto vec = std::any_cast<Vector3D>(value);
-    Napi::Object js_vec = Napi::Object::New(env);
-    js_vec.Set("x", vec.x);
-    js_vec.Set("y", vec.y);
-    js_vec.Set("z", vec.z);
-    return js_vec;
-}
+// Register custom type at runtime
+generator.register_type_converter(
+    "Vector3D",
+    // C++ to JS
+    [](Napi::Env env, const std::any &value) -> Napi::Value {
+        auto vec = std::any_cast<Vector3D>(value);
+        auto obj = Napi::Object::New(env);
+        obj.Set("x", vec.x);
+        obj.Set("y", vec.y);
+        obj.Set("z", vec.z);
+        return obj;
+    },
+    // JS to C++
+    [](const Napi::Value &js_val) -> std::any {
+        auto obj = js_val.As<Napi::Object>();
+        return Vector3D(obj.Get("x").As<Napi::Number>().FloatValue(),
+                        obj.Get("y").As<Napi::Number>().FloatValue(),
+                        obj.Get("z").As<Napi::Number>().FloatValue());
+    });
 ```
 
 ## Troubleshooting
