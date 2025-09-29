@@ -1,5 +1,6 @@
 #include <introspection/introspectable.h>
 #include <iostream>
+#include <cmath>
 #include <sstream>
 
 // Define a Vector3D class
