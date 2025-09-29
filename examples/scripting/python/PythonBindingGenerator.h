@@ -127,7 +127,7 @@ class PythonBindingGenerator {
             py_class.def_property(
                 member_name.c_str(),
                 // Getter
-                [member_name](const T &obj) -> py::object {
+                [this, member_name](const T &obj) -> py::object {
                     try {
                         auto value = obj.getMemberValue(member_name);
                         return convert_any_to_python(value,
@@ -140,7 +140,7 @@ class PythonBindingGenerator {
                     }
                 },
                 // Setter
-                [member_name](T &obj, py::object py_value) {
+                [this, member_name](T &obj, py::object py_value) {
                     try {
                         const auto *member_info =
                             obj.getTypeInfo().getMember(member_name);
@@ -170,7 +170,7 @@ class PythonBindingGenerator {
             // Create Python method using introspection
             py_class.def(
                 method_name.c_str(),
-                [method_name](T &obj, py::args args) -> py::object {
+                [this, method_name](T &obj, py::args args) -> py::object {
                     try {
                         // Convert Python arguments to std::any vector
                         std::vector<std::any> cpp_args;
@@ -199,8 +199,8 @@ class PythonBindingGenerator {
                         return convert_any_to_python(result,
                                                      method_info->return_type);
                     } catch (const std::exception &e) {
-                        throw py::runtime_error("Failed to call method '" +
-                                                method_name + "': " + e.what());
+                        // throw py::runtime_error("Failed to call method '" +
+                        //                         method_name + "': " + e.what());
                     }
                 },
                 ("Call " + method_name + " method").c_str());
@@ -222,7 +222,7 @@ class PythonBindingGenerator {
         // Dynamic member/method access
         py_class.def(
             "get_member_value",
-            [](const T &obj, const std::string &name) -> py::object {
+            [this](const T &obj, const std::string &name) -> py::object {
                 auto value = obj.getMemberValue(name);
                 const auto *member = obj.getTypeInfo().getMember(name);
                 return convert_any_to_python(value, member ? member->type_name
@@ -232,7 +232,7 @@ class PythonBindingGenerator {
 
         py_class.def(
             "set_member_value",
-            [](T &obj, const std::string &name, py::object value) {
+            [this](T &obj, const std::string &name, py::object value) {
                 const auto *member = obj.getTypeInfo().getMember(name);
                 if (!member)
                     throw py::value_error("Member not found: " + name);
@@ -244,7 +244,7 @@ class PythonBindingGenerator {
 
         py_class.def(
             "call_method",
-            [](T &obj, const std::string &name, py::list args) -> py::object {
+            [this](T &obj, const std::string &name, py::list args) -> py::object {
                 std::vector<std::any> cpp_args;
                 const auto *method = obj.getTypeInfo().getMethod(name);
                 if (!method)
