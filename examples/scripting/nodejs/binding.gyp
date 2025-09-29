@@ -1,37 +1,49 @@
 {
   "targets": [
     {
-      "target_name": "introspection_demo",  # Creates introspection_demo.node
+      "target_name": "introspection_demo",
       "sources": [
-        "binding.cxx"                       # Our main C++ file
+        "binding.cxx"
       ],
       "include_dirs": [
-        "<!@(node -p \"require('node-addon-api').include\")",  # N-API headers
-        "../../../include"                                        # Our introspection headers
+        "<!@(node -p \"require('node-addon-api').include\")",
+        "<(module_root_dir)/../../../include"
       ],
       "dependencies": [
-        "<!(node -p \"require('node-addon-api').gyp\")"       # N-API dependency
+        "<!(node -p \"require('node-addon-api').gyp\")"
       ],
-      "cflags!": [ "-fno-exceptions" ],      # Remove no-exceptions flag
-      "cflags_cc!": [ "-fno-exceptions" ],   # Remove no-exceptions flag (C++)
-      "xcode_settings": {                    # macOS-specific settings
+      "cflags!": [ "-fno-exceptions", "-fno-rtti" ],
+      "cflags_cc!": [ "-fno-exceptions", "-fno-rtti" ],
+      "cflags_cc": [
+        "-std=c++20",
+        "-fexceptions",
+        "-frtti"
+      ],
+      "xcode_settings": {
         "GCC_ENABLE_CPP_EXCEPTIONS": "YES",
+        "GCC_ENABLE_CPP_RTTI": "YES",
+        "CLANG_CXX_LANGUAGE_STANDARD": "c++20",
         "CLANG_CXX_LIBRARY": "libc++",
-        "MACOSX_DEPLOYMENT_TARGET": "10.7"
+        "MACOSX_DEPLOYMENT_TARGET": "10.14",
+        "OTHER_CPLUSPLUSFLAGS": [
+          "-std=c++20",
+          "-fexceptions",
+          "-frtti"
+        ]
       },
-      "msvs_settings": {                     # Windows Visual Studio settings
+      "msvs_settings": {
         "VCCLCompilerTool": { 
-          "ExceptionHandling": 1 
+          "ExceptionHandling": 1,
+          "RuntimeTypeInfo": "true",
+          "AdditionalOptions": [
+            "/std:c++20"
+          ]
         }
       },
-      "cflags_cc": [
-        "-std=c++20",                        # Use C++20 standard
-        "-fexceptions"                       # Enable C++ exceptions
-      ],
-      "conditions": [                        # Conditional compilation
+      "conditions": [
         ["OS==\"win\"", {
           "defines": [
-            "_HAS_EXCEPTIONS=1"              # Windows-specific exception define
+            "_HAS_EXCEPTIONS=1"
           ]
         }]
       ]

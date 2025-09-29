@@ -73,13 +73,14 @@
  * const defaultPerson = introspection.createPerson();
  * ```
  */
-class AutoJSBindingGenerator {
+class JavascriptBindingGenerator {
   public:
     // Type converter function signatures
-    using CppToJsConverter = std::function<Napi::Value(Napi::Env, const std::any &)>;
+    using CppToJsConverter =
+        std::function<Napi::Value(Napi::Env, const std::any &)>;
     using JsToCppConverter = std::function<std::any(const Napi::Value &)>;
 
-    AutoJSBindingGenerator(Napi::Env env, Napi::Object exports)
+    JavascriptBindingGenerator(Napi::Env env, Napi::Object exports)
         : env(env), exports(exports) {
         register_builtin_converters();
     }
@@ -105,9 +106,9 @@ class AutoJSBindingGenerator {
         static_assert(std::is_base_of_v<Introspectable, T>,
                       "Type must inherit from Introspectable");
 
-        // Get type info from introspection system
-        T dummy_instance;
-        const auto &type_info = dummy_instance.getTypeInfo();
+        // Get type info from introspection system (use static method to avoid
+        // copies)
+        const auto &type_info = T::getStaticTypeInfo();
 
         std::string final_class_name =
             class_name.empty() ? type_info.class_name : class_name;
@@ -235,23 +236,32 @@ class AutoJSBindingGenerator {
     template <typename T>
     Napi::Function create_js_class(const std::string &class_name,
                                    const TypeInfo &type_info) {
-        // Define the JavaScript class
-        auto js_class = DefineClass(
-            env, class_name.c_str(),
-            {
-                // Constructor
-                InstanceMethod<&JSWrapper<T>::constructor_wrapper>(
-                    "constructor"),
+        // // Define the JavaScript class
+        // auto js_class = DefineClass(
+        //     env, class_name.c_str(),
+        //     {
+        //         // Constructor
+        //         InstanceMethod<&JSWrapper<T>::constructor_wrapper>(
+        //             "constructor"),
 
-                // Create instance methods and properties dynamically
-            });
+        //         // Create instance methods and properties dynamically
+        //     });
 
-        // We need to add properties and methods dynamically after class
-        // creation This is a limitation of N-API - we'll use a wrapper approach
-        return Napi::Function::New(
-            env, [this, type_info](const Napi::CallbackInfo &info) {
-                return create_instance<T>(info, type_info);
-            });
+        // // We need to add properties and methods dynamically after class
+        // // creation This is a limitation of N-API - we'll use a wrapper
+        // approach return Napi::Function::New(
+        //     env, [this, type_info](const Napi::CallbackInfo &info) {
+        //         return create_instance<T>(info, type_info);
+        //     });
+
+        // Create a JavaScript constructor function that returns our custom
+        // object
+        // This approach works better with dynamic introspection
+        return Napi::Function::New(env, [this](const Napi::CallbackInfo &info) {
+            // Get type_info inside the lambda from the static method
+            const auto &type_info = T::getStaticTypeInfo();
+            return create_instance<T>(info, type_info);
+        });
     }
 
     template <typename T>
@@ -296,56 +306,14 @@ class AutoJSBindingGenerator {
             if (!member)
                 continue;
 
-            // Create property descriptor
-            Napi::PropertyDescriptor prop = Napi::PropertyDescriptor::Accessor(
-                env, js_obj, member_name,
-                // Getter
-                [member_name](const Napi::CallbackInfo &info) {
-                    auto cpp_obj =
-                        get_cpp_object<T>(info.This().As<Napi::Object>());
-                    try {
-                        auto value = cpp_obj->getMemberValue(member_name);
-                        const auto *member_info =
-                            cpp_obj->getTypeInfo().getMember(member_name);
-                        return convert_any_to_js(info.Env(), value,
-                                                 member_info->type_name);
-                    } catch (const std::exception &e) {
-                        Napi::TypeError::New(info.Env(),
-                                             "Failed to get member '" +
-                                                 member_name + "': " + e.what())
-                            .ThrowAsJavaScriptException();
-                        return info.Env().Undefined();
-                    }
-                },
-                // Setter
-                [member_name](const Napi::CallbackInfo &info,
-                              const Napi::Value &value) {
-                    auto cpp_obj =
-                        get_cpp_object<T>(info.This().As<Napi::Object>());
-                    try {
-                        const auto *member_info =
-                            cpp_obj->getTypeInfo().getMember(member_name);
-                        auto cpp_value =
-                            convert_js_to_any(value, member_info->type_name);
-                        cpp_obj->setMemberValue(member_name, cpp_value);
-                    } catch (const std::exception &e) {
-                        Napi::TypeError::New(info.Env(),
-                                             "Failed to set member '" +
-                                                 member_name + "': " + e.what())
-                            .ThrowAsJavaScriptException();
-                    }
-                });
-
-            // N-API doesn't allow dynamic property addition to objects easily
-            // We'll use a different approach - define getters/setters as
-            // methods
+            // Create getter/setter methods with capitalized names
             std::string getter_name = "get" + capitalize(member_name);
             std::string setter_name = "set" + capitalize(member_name);
 
             js_obj.Set(
                 getter_name,
                 Napi::Function::New(
-                    env, [member_name](const Napi::CallbackInfo &info) {
+                    env, [this, member_name](const Napi::CallbackInfo &info) {
                         auto cpp_obj =
                             get_cpp_object<T>(info.This().As<Napi::Object>());
                         auto value = cpp_obj->getMemberValue(member_name);
@@ -357,7 +325,7 @@ class AutoJSBindingGenerator {
 
             js_obj.Set(
                 setter_name,
-                Napi::Function::New(env, [member_name](
+                Napi::Function::New(env, [this, member_name](
                                              const Napi::CallbackInfo &info) {
                     if (info.Length() < 1) {
                         Napi::TypeError::New(info.Env(), "Expected 1 argument")
@@ -374,9 +342,7 @@ class AutoJSBindingGenerator {
                     return info.Env().Undefined();
                 }));
 
-            // Also create direct property access using Object.defineProperty
-            // This requires more complex setup but provides natural property
-            // access
+            // Create direct property access using Object.defineProperty
             create_property_accessor<T>(js_obj, member_name);
         }
     }
@@ -394,26 +360,38 @@ class AutoJSBindingGenerator {
         descriptor.Set("enumerable", true);
         descriptor.Set("configurable", true);
 
-        // Getter function
-        descriptor.Set(
-            "get", Napi::Function::New(
-                       env, [member_name](const Napi::CallbackInfo &info) {
-                           auto cpp_obj = get_cpp_object<T>(
-                               info.This().As<Napi::Object>());
-                           auto value = cpp_obj->getMemberValue(member_name);
-                           const auto *member_info =
-                               cpp_obj->getTypeInfo().getMember(member_name);
-                           return convert_any_to_js(info.Env(), value,
-                                                    member_info->type_name);
-                       }));
+        // Getter function - capture member_name by value
+        auto getter = Napi::Function::New(
+            env,
+            [this, member_name](const Napi::CallbackInfo &info) -> Napi::Value {
+                try {
+                    auto cpp_obj =
+                        get_cpp_object<T>(info.This().As<Napi::Object>());
+                    auto value = cpp_obj->getMemberValue(member_name);
+                    const auto *member_info =
+                        cpp_obj->getTypeInfo().getMember(member_name);
+                    return convert_any_to_js(info.Env(), value,
+                                             member_info->type_name);
+                } catch (const std::exception &e) {
+                    Napi::Error::New(info.Env(), "Failed to get '" +
+                                                     member_name +
+                                                     "': " + e.what())
+                        .ThrowAsJavaScriptException();
+                    return info.Env().Undefined();
+                }
+            });
 
-        // Setter function
-        descriptor.Set(
-            "set",
-            Napi::Function::New(
-                env, [member_name](const Napi::CallbackInfo &info) {
-                    if (info.Length() < 1)
+        // Setter function - capture member_name by value
+        auto setter = Napi::Function::New(
+            env,
+            [this, member_name](const Napi::CallbackInfo &info) -> Napi::Value {
+                try {
+                    if (info.Length() < 1) {
+                        Napi::TypeError::New(info.Env(), "Expected 1 argument")
+                            .ThrowAsJavaScriptException();
                         return info.Env().Undefined();
+                    }
+
                     auto cpp_obj =
                         get_cpp_object<T>(info.This().As<Napi::Object>());
                     const auto *member_info =
@@ -422,7 +400,17 @@ class AutoJSBindingGenerator {
                         convert_js_to_any(info[0], member_info->type_name);
                     cpp_obj->setMemberValue(member_name, cpp_value);
                     return info.Env().Undefined();
-                }));
+                } catch (const std::exception &e) {
+                    Napi::Error::New(info.Env(), "Failed to set '" +
+                                                     member_name +
+                                                     "': " + e.what())
+                        .ThrowAsJavaScriptException();
+                    return info.Env().Undefined();
+                }
+            });
+
+        descriptor.Set("get", getter);
+        descriptor.Set("set", setter);
 
         define_property.Call(
             {js_obj, Napi::String::New(env, member_name), descriptor});
@@ -441,51 +429,50 @@ class AutoJSBindingGenerator {
 
             js_obj.Set(
                 method_name,
-                Napi::Function::New(
-                    env, [method_name](const Napi::CallbackInfo &info) {
-                        auto cpp_obj =
-                            get_cpp_object<T>(info.This().As<Napi::Object>());
+                Napi::Function::New(env, [&](const Napi::CallbackInfo &info) {
+                    auto cpp_obj =
+                        get_cpp_object<T>(info.This().As<Napi::Object>());
 
-                        try {
-                            // Convert JavaScript arguments to std::any vector
-                            std::vector<std::any> cpp_args;
-                            const auto *method_info =
-                                cpp_obj->getTypeInfo().getMethod(method_name);
+                    try {
+                        // Convert JavaScript arguments to std::any vector
+                        std::vector<std::any> cpp_args;
+                        const auto *method_info =
+                            cpp_obj->getTypeInfo().getMethod(method_name);
 
-                            if (info.Length() !=
-                                method_info->parameter_types.size()) {
-                                std::string error =
-                                    "Method '" + method_name + "' expects " +
-                                    std::to_string(
-                                        method_info->parameter_types.size()) +
-                                    " arguments, got " +
-                                    std::to_string(info.Length());
-                                Napi::TypeError::New(info.Env(), error)
-                                    .ThrowAsJavaScriptException();
-                                return info.Env().Undefined();
-                            }
-
-                            for (size_t i = 0; i < info.Length(); ++i) {
-                                cpp_args.push_back(convert_js_to_any(
-                                    info[i], method_info->parameter_types[i]));
-                            }
-
-                            // Call method through introspection
-                            auto result =
-                                cpp_obj->callMethod(method_name, cpp_args);
-
-                            // Convert result back to JavaScript
-                            return convert_any_to_js(info.Env(), result,
-                                                     method_info->return_type);
-
-                        } catch (const std::exception &e) {
-                            Napi::Error::New(info.Env(),
-                                             "Failed to call method '" +
-                                                 method_name + "': " + e.what())
+                        if (info.Length() !=
+                            method_info->parameter_types.size()) {
+                            std::string error =
+                                "Method '" + method_name + "' expects " +
+                                std::to_string(
+                                    method_info->parameter_types.size()) +
+                                " arguments, got " +
+                                std::to_string(info.Length());
+                            Napi::TypeError::New(info.Env(), error)
                                 .ThrowAsJavaScriptException();
                             return info.Env().Undefined();
                         }
-                    }));
+
+                        for (size_t i = 0; i < info.Length(); ++i) {
+                            cpp_args.push_back(convert_js_to_any(
+                                info[i], method_info->parameter_types[i]));
+                        }
+
+                        // Call method through introspection
+                        auto result =
+                            cpp_obj->callMethod(method_name, cpp_args);
+
+                        // Convert result back to JavaScript
+                        return convert_any_to_js(info.Env(), result,
+                                                 method_info->return_type);
+
+                    } catch (const std::exception &e) {
+                        Napi::Error::New(info.Env(), "Failed to call method '" +
+                                                         method_name +
+                                                         "': " + e.what())
+                            .ThrowAsJavaScriptException();
+                        return info.Env().Undefined();
+                    }
+                }));
         }
     }
 
@@ -558,7 +545,7 @@ class AutoJSBindingGenerator {
         // Dynamic member/method access
         js_obj.Set(
             "getMemberValue",
-            Napi::Function::New(env, [](const Napi::CallbackInfo &info) {
+            Napi::Function::New(env, [&](const Napi::CallbackInfo &info) {
                 if (info.Length() < 1 || !info[0].IsString()) {
                     Napi::TypeError::New(info.Env(), "Expected string argument")
                         .ThrowAsJavaScriptException();
@@ -575,7 +562,7 @@ class AutoJSBindingGenerator {
 
         js_obj.Set(
             "setMemberValue",
-            Napi::Function::New(env, [](const Napi::CallbackInfo &info) {
+            Napi::Function::New(env, [&](const Napi::CallbackInfo &info) {
                 if (info.Length() < 2 || !info[0].IsString()) {
                     Napi::TypeError::New(info.Env(),
                                          "Expected (string, value) arguments")
@@ -598,7 +585,7 @@ class AutoJSBindingGenerator {
 
         js_obj.Set(
             "callMethod",
-            Napi::Function::New(env, [](const Napi::CallbackInfo &info) {
+            Napi::Function::New(env, [&](const Napi::CallbackInfo &info) {
                 if (info.Length() < 1 || !info[0].IsString()) {
                     Napi::TypeError::New(info.Env(), "Expected method name")
                         .ThrowAsJavaScriptException();
@@ -740,15 +727,16 @@ class AutoJSBindingGenerator {
         }
     }
 
-    // Wrapper class for handling JavaScript class instances
-    template <typename T> class JSWrapper {
-      public:
-        static Napi::Value constructor_wrapper(const Napi::CallbackInfo &info) {
-            // This would be used if we were creating proper N-API classes
-            // For now, we use the function-based approach above
-            return info.Env().Undefined();
-        }
-    };
+    // // Wrapper class for handling JavaScript class instances
+    // template <typename T> class JSWrapper {
+    //   public:
+    //     static Napi::Value constructor_wrapper(const Napi::CallbackInfo
+    //     &info) {
+    //         // This would be used if we were creating proper N-API classes
+    //         // For now, we use the function-based approach above
+    //         return info.Env().Undefined();
+    //     }
+    // };
 };
 
 // Convenience macro for auto-binding

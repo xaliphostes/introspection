@@ -7,7 +7,7 @@
         "install": "node-gyp rebuild",
         "build": "node-gyp build",
         "clean": "node-gyp clean",
-        "test": "node test_bindings.js"
+        "test": "node test.js"
     },
     "gypfile": true,
     "dependencies": {

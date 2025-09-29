@@ -46,6 +46,14 @@ public:
     std::unordered_map<std::string, std::unique_ptr<MethodInfo>> methods;
 
     explicit TypeInfo(const std::string &name) : class_name(name) {}
+    
+    // Delete copy operations (unique_ptr is not copyable)
+    TypeInfo(const TypeInfo&) = delete;
+    TypeInfo& operator=(const TypeInfo&) = delete;
+    
+    // Default move operations
+    TypeInfo(TypeInfo&&) = default;
+    TypeInfo& operator=(TypeInfo&&) = default;
 
     void addMember(std::unique_ptr<MemberInfo> member);
     void addMethod(std::unique_ptr<MethodInfo> method);
