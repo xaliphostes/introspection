@@ -1,18 +1,19 @@
 #pragma once
-#include <string>
-#include <vector>
-#include <functional>
-#include <typeinfo>
 #include <any>
+#include <functional>
 #include <memory>
+#include <string>
+#include <typeinfo>
+#include <vector>
 
 using Arg = std::any;
 using Args = std::vector<Arg>;
 
-// Holds information about a data member
-class MemberInfo
-{
-public:
+/**
+ * @brief Holds information about a member variable.
+ */
+class MemberInfo {
+  public:
     std::string name;
     std::string type_name;
     std::function<Arg(const void *)> getter;
@@ -23,10 +24,11 @@ public:
                std::function<void(void *, const Arg &)> s);
 };
 
-// Holds information about a method
-class MethodInfo
-{
-public:
+/**
+ * @brief Holds information about a method.
+ */
+class MethodInfo {
+  public:
     std::string name;
     std::string return_type;
     std::vector<std::string> parameter_types;
@@ -37,23 +39,29 @@ public:
                std::function<Arg(void *, const Args &)> inv);
 };
 
-// Holds complete type information
-class TypeInfo
-{
-public:
+/**
+ * @brief Holds information about a class type, including its members and
+ * methods. Uses unique_ptr to manage MemberInfo and MethodInfo instances. Copy
+ * operations are deleted to prevent copying of unique_ptrs. Move operations are
+ * defaulted to allow moving of TypeInfo instances. This design ensures proper
+ * resource management and avoids memory leaks. C++20 standard is used for
+ * std::any and other features.
+ */
+class TypeInfo {
+  public:
     std::string class_name;
     std::unordered_map<std::string, std::unique_ptr<MemberInfo>> members;
     std::unordered_map<std::string, std::unique_ptr<MethodInfo>> methods;
 
     explicit TypeInfo(const std::string &name) : class_name(name) {}
-    
+
     // Delete copy operations (unique_ptr is not copyable)
-    TypeInfo(const TypeInfo&) = delete;
-    TypeInfo& operator=(const TypeInfo&) = delete;
-    
+    TypeInfo(const TypeInfo &) = delete;
+    TypeInfo &operator=(const TypeInfo &) = delete;
+
     // Default move operations
-    TypeInfo(TypeInfo&&) = default;
-    TypeInfo& operator=(TypeInfo&&) = default;
+    TypeInfo(TypeInfo &&) = default;
+    TypeInfo &operator=(TypeInfo &&) = default;
 
     void addMember(std::unique_ptr<MemberInfo> member);
     void addMethod(std::unique_ptr<MethodInfo> method);

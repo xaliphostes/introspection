@@ -93,7 +93,7 @@ console.log(person.toJSON());
 
 - Node.js (14 or later)
 - npm
-- C++17 compatible compiler
+- C++20 compatible compiler
 - Python (for node-gyp)
 
 ### Build Steps

@@ -4,6 +4,10 @@
 
 /**
  * Base class for introspectable objects.
+ * Classes inheriting from Introspectable must implement the getTypeInfo()
+ * method to provide their TypeInfo instance. This design allows runtime
+ * introspection of class members and methods. C++20 standard is used for
+ * std::any and other features.
  */
 class Introspectable
 {
@@ -27,7 +31,20 @@ public:
     std::string toJSON() const;
 };
 
-// Simplified macro for introspectable classes
+/**
+ * @brief Macro to declare a class as introspectable.
+ * This macro should be placed in the public section of the class definition. It
+ * defines the necessary static and instance methods to provide TypeInfo for
+ * the class. The static method getStaticTypeInfo() initializes and returns a
+ * singleton TypeInfo instance for the class. The instance method getTypeInfo()
+ * overrides the pure virtual method from Introspectable to return the static
+ * TypeInfo. The macro also declares a private static method
+ * registerIntrospection() that must be implemented by the user to register the
+ * class's members and methods. This design ensures that each introspectable
+ * class has a single TypeInfo instance, avoiding redundant copies and ensuring
+ * efficient memory usage. C++20 standard is used for std::any and other
+ * features.
+ */
 #define INTROSPECTABLE(ClassName)                                    \
 public:                                                              \
     static TypeInfo &getStaticTypeInfo()                             \

@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/C%2B%2B-17+-blue.svg" alt="Language">
+  <img src="https://img.shields.io/badge/C%2B%2B-20+-blue.svg" alt="Language">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
 </p>
 
@@ -44,7 +44,7 @@ The key advantage is that once a C++ class inherits from Introspectable and regi
 - **Type-Safe**: Compile-time registration with runtime type checking
 - **Template-Based**: Clean, fluent registration API using member/method pointers
 - **Zero Dependencies**: No external libraries required
-- **C++17/20 Compatible**: Uses modern C++ features like `std::any` and `if constexpr`
+- **C++20 Compatible**: Uses modern C++ features like `std::any` and `if constexpr`
 
 ## Quick Start
 
@@ -134,16 +134,16 @@ Both return `TypeRegistrar&` for method chaining.
 
 ## Compilation
 
-Requires C++17 or later:
+Requires C++20 or later:
 
 ```cmake
 cmake_minimum_required(VERSION 3.17)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 add_executable(your_app main.cpp)
 ```
 
 ```bash
-g++ -std=c++17 main.cpp -o your_app
+g++ -std=c++20 main.cpp -o your_app
 ```
 
 ## Supported Types
