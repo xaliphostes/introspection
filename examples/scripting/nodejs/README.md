@@ -300,3 +300,7 @@ macOS deployment target - Updated to 10.14 for std::any support
 - **C++20** features - Ensured C++20 is properly enabled for starts_with()
 - **N-API** signatures - Fixed lambda captures and property accessor creation
 - **TypeInfo** copying - Made it non-copyable and used references appropriately
+
+## License
+
+LGPL License - see LICENSE file for details

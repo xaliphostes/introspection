@@ -544,7 +544,7 @@ def create_people(count: int) -> List[demo.Person]:
 
 ## License
 
-MIT License - see LICENSE file for details
+LGPL License - see LICENSE file for details
 
 ## Contributing
 

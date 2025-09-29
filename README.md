@@ -12,7 +12,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/C%2B%2B-20+-blue.svg" alt="Language">
-  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
+  <img src="https://img.shields.io/badge/license-LGPL-blue.svg" alt="License">
 </p>
 
 A lightweight, header-only C++ introspection system that enables runtime inspection and manipulation of class members and methods without external dependencies.
@@ -161,4 +161,4 @@ g++ -std=c++20 main.cpp -o your_app
 
 ## License
 
-MIT License - feel free to use in your project
+LGPL License - feel free to use in your project
