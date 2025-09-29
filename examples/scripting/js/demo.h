@@ -17,13 +17,25 @@ class Person : public Introspectable {
 
     // Getters and setters
     std::string getName() const { return name; }
-    void setName(const std::string &n) { name = n; }
+    Person &setName(const std::string &n) {
+        name = n;
+        return *this;
+    }
     int getAge() const { return age; }
-    void setAge(int a) { age = a; }
+    Person &setAge(int a) {
+        age = a;
+        return *this;
+    }
     double getHeight() const { return height; }
-    void setHeight(double h) { height = h; }
+    Person &setHeight(double h) {
+        height = h;
+        return *this;
+    }
     bool getIsActive() const { return isActive; }
-    void setIsActive(bool active) { isActive = active; }
+    Person &setIsActive(bool active) {
+        isActive = active;
+        return *this;
+    }
 
     // Methods
     void introduce() const {

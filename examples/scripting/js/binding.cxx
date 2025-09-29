@@ -7,7 +7,6 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     JavascriptBindingGenerator generator(env, exports);
     generator.bind_classes<Person, Vehicle>();
     generator.add_utilities();
-
     return exports;
 }
 

@@ -3,6 +3,7 @@ const introspection = require('./build/Release/introspection_demo');
 console.log('=== Automatic JavaScript Bindings Test ===\n');
 
 // Create objects using constructors
+// -------------------------------------------------------
 console.log('1. Creating objects...');
 const person = new introspection.Person();
 const vehicle = new introspection.Vehicle();
@@ -12,6 +13,7 @@ console.log('Vehicle created:', vehicle.getClassName());
 console.log();
 
 // Test direct property access (natural JavaScript style)
+// -------------------------------------------------------
 console.log('2. Direct property access...');
 person.name = "Alice";
 person.age = 30;
@@ -28,6 +30,7 @@ console.log(`Vehicle: ${vehicle.brand} ${vehicle.model} (${vehicle.year}), ${veh
 console.log();
 
 // Test method calls
+// -------------------------------------------------------
 console.log('3. Method calls...');
 person.introduce();
 person.celebrateBirthday();
@@ -40,6 +43,7 @@ vehicle.stop();
 console.log();
 
 // Test introspection utilities
+// -------------------------------------------------------
 console.log('4. Introspection utilities...');
 console.log('Person class name:', person.getClassName());
 console.log('Person members:', person.getMemberNames());
@@ -51,6 +55,7 @@ console.log('Has "introduce" method:', person.hasMethod("introduce"));
 console.log();
 
 // Test dynamic access
+// -------------------------------------------------------
 console.log('5. Dynamic member access...');
 console.log('Age via introspection:', person.getMemberValue("age"));
 person.setMemberValue("height", 1.80);
@@ -58,6 +63,7 @@ console.log('Height after dynamic set:', person.getMemberValue("height"));
 console.log();
 
 // Test dynamic method calls
+// -------------------------------------------------------
 console.log('6. Dynamic method calls...');
 person.callMethod("introduce", []);
 const description = person.callMethod("getDescription", []);
@@ -65,52 +71,23 @@ console.log('Description from dynamic call:', description);
 console.log();
 
 // Test JSON export
+// -------------------------------------------------------
 console.log('7. JSON export...');
 console.log('Person as JSON:');
 console.log(person.toJSON());
 console.log();
 
-// Test module utilities
-console.log('8. Module utilities...');
-console.log('Available classes:', introspection.getAllClasses());
-
-// Test factory functions
-const defaultPerson = introspection.createPerson();
-const defaultVehicle = introspection.createVehicle();
-console.log('Default person created:', defaultPerson.getClassName());
-console.log('Default vehicle created:', defaultVehicle.getClassName());
-console.log();
-
 // Test property getters/setters (alternative syntax)
-console.log('9. Getter/setter methods...');
+// -------------------------------------------------------
+console.log('8. Getter/setter methods...');
 console.log('Person name via getter:', person.getName());
 person.setName("Bob");
 console.log('Person name after setter:', person.getName());
 console.log();
 
-// Test error handling
-console.log('10. Error handling...');
-try {
-    person.getMemberValue("nonexistent");
-} catch (error) {
-    console.log('Caught expected error:', error.message);
-}
-
-try {
-    person.callMethod("nonexistentMethod", []);
-} catch (error) {
-    console.log('Caught expected error:', error.message);
-}
-
-try {
-    person.setMemberValue("age", "not a number");
-} catch (error) {
-    console.log('Caught expected error:', error.message);
-}
-console.log();
-
 // Test property enumeration
-console.log('11. Property enumeration...');
+// -------------------------------------------------------
+console.log('9. Property enumeration...');
 console.log('Person properties:');
 for (const prop in person) {
     console.log(`  ${prop}: ${typeof person[prop]}`);
@@ -118,11 +95,12 @@ for (const prop in person) {
 console.log();
 
 // Test advanced scenarios
-console.log('12. Advanced scenarios...');
+// -------------------------------------------------------
+console.log('10. Advanced scenarios...');
 
-// Chain method calls
-person.setName("Charlie").setAge(35).setHeight(1.75);
-console.log('After chaining (if supported):', person.getDescription());
+// // Chain method calls
+// person.setName("Charlie").setAge(35).setHeight(1.75);
+// console.log('After chaining (if supported):', person.getDescription());
 
 // Batch property update
 const personData = {
@@ -142,7 +120,8 @@ console.log('After batch update:', person.getDescription());
 console.log();
 
 // Performance test
-console.log('13. Performance test...');
+// -------------------------------------------------------
+console.log('11. Performance test...');
 const startTime = Date.now();
 for (let i = 0; i < 1000; i++) {
     person.setAge(i % 100);
@@ -151,5 +130,36 @@ for (let i = 0; i < 1000; i++) {
 const endTime = Date.now();
 console.log(`1000 property operations took: ${endTime - startTime}ms`);
 console.log();
+
+// // Test module utilities
+// -------------------------------------------------------
+// console.log('12. Module utilities...');
+// console.log('Available classes:', introspection.getAllClasses());
+// // Test factory functions
+// const defaultPerson = introspection.createPerson();
+// const defaultVehicle = introspection.createVehicle();
+// console.log('Default person created:', defaultPerson.getClassName());
+// console.log('Default vehicle created:', defaultVehicle.getClassName());
+// console.log();
+
+// // Test error handling
+// -------------------------------------------------------
+// console.log('13. Error handling...');
+// try {
+//     person.getMemberValue("nonexistent");
+// } catch (error) {
+//     console.log('Caught expected error:', error.message);
+// }
+// try {
+//     person.callMethod("nonexistentMethod", []);
+// } catch (error) {
+//     console.log('Caught expected error:', error.message);
+// }
+// try {
+//     person.setMemberValue("age", "not a number");
+// } catch (error) {
+//     console.log('Caught expected error:', error.message);
+// }
+// console.log();
 
 console.log('=== All tests completed successfully! ===');
