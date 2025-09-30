@@ -1,12 +1,12 @@
 # C++ Introspection Library
-## with application to automatic language binding
+## ... with application to automatic language binding
 
 <p align="center">
   <img src="media/logo.png" alt="Logo introspection" width="200">
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/static/v1?label=Linux&logo=linux&logoColor=white&message=soon&color=red" alt="Linux support">
+  <img src="https://img.shields.io/static/v1?label=Linux&logo=linux&logoColor=white&message=support&color=success" alt="Linux support">
   <img src="https://img.shields.io/static/v1?label=macOS&logo=apple&logoColor=white&message=support&color=success" alt="macOS support">
   <img src="https://img.shields.io/static/v1?label=Windows&logo=windows&logoColor=white&message=support&color=sucess" alt="Windows support">
 </p>
@@ -24,7 +24,7 @@ This C++ introspection system enables **automatic language binding generation fo
   ```cpp
   PYBIND11_MODULE(introspection_demo, m) {
       PythonBindingGenerator generator(m);
-      generator.bind_class<Person, Vehicle>();
+      generator.bind_classes<Person, Vehicle>();
   }
   ```
 
@@ -55,12 +55,7 @@ The key advantage is that once a C++ class inherits from Introspectable and regi
 #include "introspection.h"
 
 class Person : public Introspectable {
-    INTROSPECTABLE(Person)
-    
-private:
-    std::string name;
-    int age;
-    
+    INTROSPECTABLE(Person)    
 public:
     Person(const std::string& n, int a) : name(n), age(a) {}
     
@@ -68,8 +63,14 @@ public:
     void setName(const std::string& n) { name = n; }
     int getAge() const { return age; }
     void introduce() { std::cout << "Hi, I'm " << name << std::endl; }
+
+private:
+    std::string name;
+    int age;
 };
 ```
+
+or if your class is already in a lib, make a wrapper around it.
 
 ### 2. Register Members and Methods
 
