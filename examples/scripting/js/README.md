@@ -161,6 +161,10 @@ The module provides:
 - `double`, `float` ↔ `number`
 - `bool` ↔ `boolean`
 - `void` ↔ `undefined`
+- `vector<int>` ↔ `Array<number>`
+- `vector<float or double>` ↔ `Array<number>`
+- `vector<string>` ↔ `Array<string>`
+- User defined...
 
 ### Type Conversion
 

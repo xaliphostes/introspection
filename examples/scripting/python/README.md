@@ -12,6 +12,52 @@ This directory contains an automatic binding generator that creates Python modul
 - **Error Handling**: Proper Python exceptions for invalid operations
 - **Factory Functions**: Automatic creation of object factory methods
 
+## Building
+
+### Prerequisites
+
+- Python 3.7 or later
+- C++20 compatible compiler
+- CMake 3.15 or later
+- pybind11 (automatically fetched via CMake)
+
+### Build with CMake
+
+```bash
+# Create build directory
+mkdir build && cd build
+
+# Configure
+cmake ..
+
+# Build
+cmake --build .
+
+# The Python module will be in build/pyintro.so (or .pyd on Windows)
+```
+
+### Build with setuptools (Alternative)
+
+```bash
+# Install in development mode
+pip install -e .
+
+# Or build wheel
+pip install build
+python -m build
+```
+
+### Using the Module
+
+```bash
+# Add build directory to Python path
+export PYTHONPATH=$PYTHONPATH:/path/to/build
+
+# Or install the module
+pip install .
+```
+
+
 ## Quick Start
 
 ### 1. Define Your C++ Classes
@@ -20,38 +66,27 @@ This directory contains an automatic binding generator that creates Python modul
 #include <introspection/introspectable.h>
 
 class Person : public Introspectable {
-    INTROSPECTABLE(Person)
+    INTROSPECTABLE(Person)    
+public:
+    Person();
+    Person(const std::string& n, int a, double h);
+
+    // Getters and setters
+    std::string getName() const;
+    void setName(const std::string& n);
+    int getAge() const;
+    void setAge(int a);
+    
+    // Methods
+    void introduce() const;
+    void celebrateBirthday();
+    std::string getDescription() const;
+
 private:
     std::string name;
     int age;
     double height;
     bool isActive;
-    
-public:
-    Person() : name(""), age(0), height(0.0), isActive(true) {}
-    Person(const std::string& n, int a, double h)
-        : name(n), age(a), height(h), isActive(true) {}
-    
-    // Getters and setters
-    std::string getName() const { return name; }
-    void setName(const std::string& n) { name = n; }
-    int getAge() const { return age; }
-    void setAge(int a) { age = a; }
-    
-    // Methods
-    void introduce() const {
-        std::cout << "Hi! I'm " << name << ", " << age << " years old, "
-                  << height << "m tall." << std::endl;
-    }
-    
-    void celebrateBirthday() {
-        age++;
-        std::cout << "🎉 " << name << " is now " << age << " years old!" << std::endl;
-    }
-    
-    std::string getDescription() const {
-        return name + " (" + std::to_string(age) + " years)";
-    }
 };
 
 void Person::registerIntrospection(TypeRegistrar<Person> reg) {
@@ -79,7 +114,7 @@ PYBIND11_MODULE(introspection_demo, m) {
     m.doc() = "Automatic Python bindings using C++ introspection";
     
     PythonBindingGenerator generator(m);
-    generator.bind_class<Person, Vehicle>();  // Bind multiple classes at once!
+    generator.bind_classes<Person, Vehicle>();  // Bind multiple classes at once!
 }
 ```
 
@@ -127,51 +162,6 @@ print("Person as JSON:", person.to_json())
 print("Available classes:", introspection_demo.get_all_classes())
 default_person = introspection_demo.create_person()
 default_vehicle = introspection_demo.create_vehicle()
-```
-
-## Building
-
-### Prerequisites
-
-- Python 3.7 or later
-- C++20 compatible compiler
-- CMake 3.15 or later
-- pybind11 (automatically fetched via CMake)
-
-### Build with CMake
-
-```bash
-# Create build directory
-mkdir build && cd build
-
-# Configure
-cmake ..
-
-# Build
-cmake --build .
-
-# The Python module will be in build/pyintro.so (or .pyd on Windows)
-```
-
-### Build with setuptools (Alternative)
-
-```bash
-# Install in development mode
-pip install -e .
-
-# Or build wheel
-pip install build
-python -m build
-```
-
-### Using the Module
-
-```bash
-# Add build directory to Python path
-export PYTHONPATH=$PYTHONPATH:/path/to/build
-
-# Or install the module
-pip install .
 ```
 
 ## API Reference

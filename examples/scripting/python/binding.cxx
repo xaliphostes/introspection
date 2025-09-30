@@ -1,5 +1,5 @@
 #include "PythonBindingGenerator.h"
-#include "demo.h"
+#include "../demo.h"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 

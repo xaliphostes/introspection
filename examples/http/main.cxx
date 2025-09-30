@@ -8,8 +8,12 @@ void launchGui(Introspectable &obj);
 // Example usage
 int main()
 {
+    std::cerr << "Starting HTTP server at http://localhost:8080\n";
+    std::cerr << "Press Ctrl+C to stop the server.\n";
+
     Person person("Alice", 30, 1.65);
     launchGui(person);
+
     return 0;
 }
 
@@ -110,8 +114,10 @@ void launchGui(Introspectable &obj)
 
     server.Post("/update", [&](const httplib::Request &req, httplib::Response &res)
                 {
+
         // Parse JSON and update object
         // obj.setMemberValue(name, value);
+
         res.set_content("OK", "text/plain"); });
 
     server.listen("0.0.0.0", 8080);

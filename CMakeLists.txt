@@ -12,4 +12,4 @@ add_subdirectory(examples/game)
 
 # add_subdirectory(examples/scripting/python)
 # add_subdirectory(examples/scripting/js)
-# add_subdirectory(examples/http)
+add_subdirectory(examples/http)

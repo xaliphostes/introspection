@@ -1,5 +1,5 @@
 #include "JavascriptBindingGenerator.h"
-#include "demo.h"
+#include "../demo.h"
 #include <napi.h>
 
 // Node.js addon initialization - ONLY 3 LINES for both classes!
