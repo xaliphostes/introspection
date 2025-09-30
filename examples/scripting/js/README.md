@@ -15,23 +15,45 @@ This directory contains an automatic binding generator that creates Node.js nati
 - ✅ Error Handling: Proper JavaScript exceptions for invalid operations
 - ✅ Factory Functions: Automatic creation of object factory methods
 
+## Building
+
+### Prerequisites
+
+- Node.js (14 or later)
+- npm
+- C++20 compatible compiler
+- Python (for node-gyp)
+
+### Build Steps
+
+```bash
+# Install dependencies
+npm install
+
+# Build the addon
+npm run build
+
+# Run tests
+npm test
+```
+
 ## Quick Start
 
 ### 1. Define Your C++ Classes
 
 ```cpp
 class Person : public Introspectable {
-    INTROSPECTABLE(Person)
-private:
-    std::string name;
-    int age;
-    double height;
-    
+    INTROSPECTABLE(Person)    
 public:
     Person() : name(""), age(0), height(0.0) {}
     std::string getName() const { return name; }
     void setName(const std::string& n) { name = n; }
     void introduce() { std::cout << "Hi, I'm " << name << std::endl; }
+
+private:
+    std::string name;
+    int age;
+    double height;
 };
 
 void Person::registerIntrospection(TypeRegistrar<Person> reg) {
@@ -50,7 +72,7 @@ void Person::registerIntrospection(TypeRegistrar<Person> reg) {
 #include "JavascriptBindingGenerator.h"
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-    JavascriptBindingGenerator(env, exports).bind_classes<Person>();
+    JavascriptBindingGenerator(env, exports).bind_class<Person>();
     return exports;
 }
 
@@ -85,37 +107,6 @@ console.log(person.getMemberValue("age"));  // 25
 
 // JSON export
 console.log(person.toJSON());
-```
-
-## Building
-
-### Prerequisites
-
-- Node.js (14 or later)
-- npm
-- C++20 compatible compiler
-- Python (for node-gyp)
-
-### Build Steps
-
-```bash
-# Install dependencies
-npm install
-
-# Build the addon
-npm run build
-
-# Run tests
-npm test
-```
-
-### Using with CMake
-
-```bash
-mkdir build && cd build
-cmake ..
-make js_bindings
-make test_js_bindings
 ```
 
 ## API Reference
