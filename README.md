@@ -46,7 +46,7 @@ The key advantage is that once a C++ class inherits from Introspectable and regi
 - **Template-Based**: Clean, fluent registration API using member/method pointers
 - **Zero Dependencies**: No external libraries required
 - **C++20 Compatible**: Uses modern C++ features like `std::any` and `if constexpr`
-- **Multiple copnstructors**
+- **Multiple constructors** if **needed**
 
 ## Quick Start
 

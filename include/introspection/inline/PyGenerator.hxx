@@ -61,7 +61,7 @@ inline void PyGenerator::bind_constructors(py::class_<T> &py_class, const TypeIn
     {
         py_class.def(
             "__init__",
-            [ctor_ptr = ctor.get()](T &self, py::args args)
+            [this, ctor_ptr = ctor.get()](T &self, py::args args)
             {
                 // Convert Python args to C++ std::any vector
                 std::vector<std::any> cpp_args;
