@@ -1,8 +1,8 @@
-import introspection_demo
+import pyintrospection as intro
 
 # Create objects using constructors
-person = introspection_demo.Person("Alice", 30, 1.65)
-vehicle = introspection_demo.Vehicle("Honda", "Civic", 2022)
+person = intro.Person("Alice", 30, 1.65)
+vehicle = intro.Vehicle("Honda", "Civic", 2022)
 
 # Use auto-generated properties
 print(f"Person name: {person.name}")
@@ -36,6 +36,6 @@ person.call_method("introduce", [])
 print("Person as JSON:", person.to_json())
 
 # Module utilities
-print("Available classes:", introspection_demo.get_all_classes())
-default_person = introspection_demo.create_person()
-default_vehicle = introspection_demo.create_vehicle()
+print("Available classes:", intro.get_all_classes())
+default_person = intro.create_person()
+default_vehicle = intro.create_vehicle()

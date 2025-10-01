@@ -57,6 +57,13 @@ export PYTHONPATH=$PYTHONPATH:/path/to/build
 pip install .
 ```
 
+## Running the example
+
+- make sure the python version is >=3.13
+- Stay in the build folder
+```bash
+python3 ../test.py
+```
 
 ## Quick Start
 

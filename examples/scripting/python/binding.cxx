@@ -4,7 +4,7 @@
 #include <pybind11/stl.h>
 
 // pybind11 module definition using automatic binding
-PYBIND11_MODULE(introspection_demo, m) {
+PYBIND11_MODULE(pyintrospection, m) {
     m.doc() = "Automatic Python bindings using C++ introspection";
 
     PythonBindingGenerator generator(m);
