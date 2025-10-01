@@ -1,11 +1,25 @@
 #include <stdexcept>
 
+/**
+ * @brief Get type name with support for user-registered types
+ *
+ * This function first checks the TypeNameRegistry for a registered name.
+ * If not found, it falls back to built-in type detection.
+ * For completely unknown types, it uses typeid(T).name() as last resort.
+ */
 template <typename T>
 inline std::string getTypeName()
 {
     // Remove const, volatile, and reference qualifiers
     using BaseType = std::remove_cv_t<std::remove_reference_t<T>>;
 
+    // First, check if type is registered in the user registry
+    if (TypeNameRegistry::instance().is_registered<BaseType>())
+    {
+        return TypeNameRegistry::instance().get_name<BaseType>();
+    }
+
+    // Built-in string types
     if constexpr (std::is_same_v<BaseType, std::string>)
     {
         return "string";
@@ -26,19 +40,33 @@ inline std::string getTypeName()
     {
         return "const char*";
     }
-
+    // Handle pointers to registered types
     else if constexpr (std::is_pointer_v<BaseType>)
     {
-        return getTypeName<std::remove_pointer_t<BaseType>>() + "*";
+        using PointedType = std::remove_pointer_t<BaseType>;
+        if (TypeNameRegistry::instance().is_registered<PointedType>())
+        {
+            return TypeNameRegistry::instance().get_name<PointedType>() + "*";
+        }
+        return getTypeName<PointedType>() + "*";
     }
-    else
+    // Handle std::vector of registered types
+    else if constexpr (requires { typename BaseType::value_type; typename BaseType::iterator; })
     {
-        // Fallback to mangled name for unknown types
-        return typeid(T).name();
+        // This is likely a container
+        using ValueType = typename BaseType::value_type;
+        if (TypeNameRegistry::instance().is_registered<ValueType>())
+        {
+            return "vector<" + TypeNameRegistry::instance().get_name<ValueType>() + ">";
+        }
+        // Fall through to default handling
     }
+
+    // Unknown type - use mangled name as fallback
+    return typeid(BaseType).name();
 }
 
-// Specialized versions for common types
+// Specialized versions for common built-in types
 template <>
 inline std::string getTypeName<short>() { return "short"; }
 
@@ -47,10 +75,6 @@ inline std::string getTypeName<unsigned short>() { return "unsigned short"; }
 
 template <>
 inline std::string getTypeName<long>() { return "long"; }
-
-// This is size_t!
-// template <>
-// inline std::string getTypeName<unsigned long>() { return "unsigned long"; }
 
 template <>
 inline std::string getTypeName<long long>() { return "long long"; }
@@ -75,6 +99,21 @@ inline std::string getTypeName<bool>() { return "bool"; }
 
 template <>
 inline std::string getTypeName<void>() { return "void"; }
+
+// Specialized versions for common container types
+template <>
+inline std::string getTypeName<std::vector<int>>() { return "vector<int>"; }
+
+template <>
+inline std::string getTypeName<std::vector<float>>() { return "vector<float>"; }
+
+template <>
+inline std::string getTypeName<std::vector<double>>() { return "vector<double>"; }
+
+template <>
+inline std::string getTypeName<std::vector<std::string>>() { return "vector<string>"; }
+
+// Rest of the file remains the same...
 
 template <typename Class>
 template <typename MemberType>
@@ -111,7 +150,6 @@ std::vector<std::string> createParameterTypeVector()
 }
 
 // Helper function to cast arguments from std::any vector to the correct types
-// This uses index_sequence to unpack the arguments at compile time
 template <typename Class, typename ReturnType, typename... Args, std::size_t... I>
 inline std::any callMethodImpl(Class *obj, ReturnType (Class::*method_ptr)(Args...),
                                const std::vector<std::any> &args, std::index_sequence<I...>)

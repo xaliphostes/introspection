@@ -32,14 +32,8 @@ public:
     }
 };
 
-// 1. Add template specialization for Vector3D in types.hxx
-// Add this to include/introspection/inline/types.hxx:
-
-template <>
-inline std::string getTypeName<Vector3D>()
-{
-    return "Vector3D";
-}
+// 1. Register the new type Vector3D
+REGISTER_TYPE(Vector3D);
 
 // 2. Example class that uses Vector3D as a member
 class GameObject : public Introspectable
