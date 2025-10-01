@@ -46,6 +46,7 @@ The key advantage is that once a C++ class inherits from Introspectable and regi
 - **Template-Based**: Clean, fluent registration API using member/method pointers
 - **Zero Dependencies**: No external libraries required
 - **C++20 Compatible**: Uses modern C++ features like `std::any` and `if constexpr`
+- **Multiple copnstructors**
 
 ## Quick Start
 
@@ -72,11 +73,13 @@ private:
 
 or if your class is already in a lib, make a wrapper around it.
 
-### 2. Register Members and Methods
+### 2. Register Ctors, Members and Methods
 
 ```cpp
 void Person::registerIntrospection(TypeRegistrar<Person> reg) {
-    reg.member("name", &Person::name)
+    reg.constructor<>()
+       .constructor<const std::string&, int, double>()
+       .member("name", &Person::name)
        .member("age", &Person::age)
        .method("getName", &Person::getName)
        .method("setName", &Person::setName)

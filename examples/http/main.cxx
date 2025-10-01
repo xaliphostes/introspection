@@ -3,7 +3,7 @@
 #include "../person.h"
 #include <httplib.h> // cpp-httplib library
 
-void launchGui(Introspectable &obj);
+void launchGui(introspection::Introspectable &obj);
 
 // Example usage
 int main()
@@ -19,7 +19,7 @@ int main()
 
 // ===================================================
 
-std::string generateHtmlForm(const Introspectable &obj)
+std::string generateHtmlForm(const introspection::Introspectable &obj)
 {
     std::stringstream html;
     const auto &type_info = obj.getTypeInfo();

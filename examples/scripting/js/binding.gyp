@@ -3,7 +3,7 @@
     {
       "target_name": "introspection_demo",
       "sources": [
-        "binding.cxx", "JavascriptBindingGenerator.cxx"
+        "binding.cxx"
       ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",

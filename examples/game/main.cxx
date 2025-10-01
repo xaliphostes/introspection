@@ -36,7 +36,7 @@ public:
 REGISTER_TYPE(Vector3D);
 
 // 2. Example class that uses Vector3D as a member
-class GameObject : public Introspectable
+class GameObject : public introspection::Introspectable
 {
     INTROSPECTABLE(GameObject)
 
@@ -90,7 +90,7 @@ public:
 };
 
 // 3. Registration implementation
-void GameObject::registerIntrospection(TypeRegistrar<GameObject> reg)
+void GameObject::registerIntrospection(introspection::TypeRegistrar<GameObject> reg)
 {
     reg.member("name", &GameObject::name)
         .member("position", &GameObject::position) // Vector3D member

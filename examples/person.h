@@ -1,7 +1,7 @@
 #include <introspection/info.h>
 #include <introspection/introspectable.h>
 
-class Person : public Introspectable // <--------- !!!
+class Person : public introspection::Introspectable // <--------- !!!
 {
     INTROSPECTABLE(Person) // <--------- !!!
 public:
@@ -67,7 +67,7 @@ std::string Person::getDescription() const
 /**
  * @brief Registration implementation using templates (inherited static method)
  */
-void Person::registerIntrospection(TypeRegistrar<Person> reg)
+void Person::registerIntrospection(introspection::TypeRegistrar<Person> reg)
 {
     reg
         .constructor<>()                                 // Default constructor

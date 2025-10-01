@@ -9,6 +9,7 @@ This directory contains an automatic binding generator that creates Node.js nati
 - ✅ Full introspection from JavaScript
 - ✅ Automatic type conversion
 - ✅ Automatic Property Binding: All class members become JavaScript properties with natural get/set syntax
+- ✅ Multiple constructors binding
 - ✅ Method Binding: All class methods become JavaScript functions with automatic parameter conversion
 - ✅ Type Safety: Automatic type conversion between JavaScript and C++ types
 - ✅ Introspection Utilities: Access to reflection information from JavaScript
@@ -45,10 +46,11 @@ npm test
 class Person : public Introspectable {
     INTROSPECTABLE(Person)    
 public:
-    Person() : name(""), age(0), height(0.0) {}
-    std::string getName() const { return name; }
-    void setName(const std::string& n) { name = n; }
-    void introduce() { std::cout << "Hi, I'm " << name << std::endl; }
+    Person();
+    Person(const std::string &n, int a, double h); 
+    std::string getName() const;
+    void setName(const std::string& n);
+    void introduce();
 
 private:
     std::string name;
@@ -57,7 +59,9 @@ private:
 };
 
 void Person::registerIntrospection(TypeRegistrar<Person> reg) {
-    reg.member("name", &Person::name)
+    reg.constructor<>()
+       .constructor<const std::string&, int, double>()
+       .member("name", &Person::name)
        .member("age", &Person::age)
        .member("height", &Person::height)
        .method("getName", &Person::getName)
@@ -85,7 +89,7 @@ NODE_API_MODULE(introspection_demo, Init)
 const introspection = require('./build/Release/introspection_demo');
 
 // Create objects
-const person = new introspection.Person();
+const person = new introspection.Person("Alex", 22, 174);
 
 // Natural property access
 person.name = "Alice";

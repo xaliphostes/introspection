@@ -36,12 +36,12 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/binding.gyp
                ${CMAKE_CURRENT_BINARY_DIR}/binding.gyp COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/binding.cxx 
                ${CMAKE_CURRENT_BINARY_DIR}/binding.cxx COPYONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/JavascriptBindingGenerator.cxx 
-               ${CMAKE_CURRENT_BINARY_DIR}/JavascriptBindingGenerator.cxx COPYONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/JavascriptBindingGenerator.h 
-               ${CMAKE_CURRENT_BINARY_DIR}/JavascriptBindingGenerator.h COPYONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/JavascriptBindingGenerator.hxx 
-               ${CMAKE_CURRENT_BINARY_DIR}/JavascriptBindingGenerator.hxx COPYONLY)
+# configure_file(${CMAKE_CURRENT_SOURCE_DIR}/JavascriptBindingGenerator.cxx 
+#                ${CMAKE_CURRENT_BINARY_DIR}/JavascriptBindingGenerator.cxx COPYONLY)
+# configure_file(${CMAKE_CURRENT_SOURCE_DIR}/JavascriptBindingGenerator.h 
+#                ${CMAKE_CURRENT_BINARY_DIR}/JavascriptBindingGenerator.h COPYONLY)
+# configure_file(${CMAKE_CURRENT_SOURCE_DIR}/JavascriptBindingGenerator.hxx 
+#                ${CMAKE_CURRENT_BINARY_DIR}/JavascriptBindingGenerator.hxx COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/demo.h 
                ${CMAKE_CURRENT_BINARY_DIR}/demo.h COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test.js 
@@ -82,7 +82,7 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/binding.cxx
     ${CMAKE_CURRENT_BINARY_DIR}/binding.gyp
     ${CMAKE_CURRENT_BINARY_DIR}/demo.h
-    ${CMAKE_CURRENT_BINARY_DIR}/JavascriptBindingGenerator.h
+    #${CMAKE_CURRENT_BINARY_DIR}/JavascriptBindingGenerator.h
     ${CMAKE_CURRENT_BINARY_DIR}/test.js
     DESTINATION js_bindings/
 )

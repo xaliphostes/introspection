@@ -6,7 +6,7 @@ console.log('=== Automatic JavaScript Bindings Test ===\n');
 // -------------------------------------------------------
 console.log('1. Creating objects...');
 const person = new intro.Person("Coucou", 12, 1.74);
-const vehicle = new intro.Vehicle();
+const vehicle = new intro.Vehicle("BMW", "Serie 3", 2021);
 
 console.log('Person created:', person.getClassName());
 console.log('Vehicle created:', vehicle.getClassName());
