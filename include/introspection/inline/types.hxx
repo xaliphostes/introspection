@@ -236,3 +236,50 @@ inline TypeRegistrar<Class> &TypeRegistrar<Class>::method(const std::string &nam
         }));
     return *this;
 }
+
+// Helper to create parameter type vector for constructors
+template <typename... Args>
+std::vector<std::string> createConstructorParameterTypes()
+{
+    if constexpr (sizeof...(Args) == 0)
+    {
+        return std::vector<std::string>{};
+    }
+    else
+    {
+        return std::vector<std::string>{getTypeName<Args>()...};
+    }
+}
+
+// Helper to construct object from arguments
+template <typename Class, typename... Args, std::size_t... I>
+inline void *constructImpl(const std::vector<std::any> &args,
+                           std::index_sequence<I...>)
+{
+    return new Class(std::any_cast<Args>(args[I])...);
+}
+
+// Constructor registration
+template <typename Class>
+template <typename... Args>
+inline TypeRegistrar<Class> &TypeRegistrar<Class>::constructor()
+{
+    info.addConstructor(std::make_unique<ConstructorInfo>(
+        createConstructorParameterTypes<Args...>(),
+        [](const std::vector<std::any> &args) -> void *
+        {
+            // Validate argument count at runtime
+            if (args.size() != sizeof...(Args))
+            {
+                throw std::runtime_error(
+                    "Incorrect number of constructor arguments. Expected " +
+                    std::to_string(sizeof...(Args)) +
+                    ", got " + std::to_string(args.size()));
+            }
+
+            // Use index_sequence to unpack arguments
+            return constructImpl<Class, Args...>(
+                args, std::index_sequence_for<Args...>{});
+        }));
+    return *this;
+}

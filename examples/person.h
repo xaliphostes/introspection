@@ -69,7 +69,10 @@ std::string Person::getDescription() const
  */
 void Person::registerIntrospection(TypeRegistrar<Person> reg)
 {
-    reg.member("name", &Person::name)
+    reg
+        .constructor<>()                                 // Default constructor
+        .constructor<const std::string &, int, double>() // Parameterized constructor
+        .member("name", &Person::name)
         .member("age", &Person::age)
         .member("height", &Person::height)
         .method("introduce", &Person::introduce)

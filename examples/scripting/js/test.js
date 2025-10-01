@@ -1,15 +1,17 @@
-const introspection = require('./build/Release/introspection_demo');
+const intro = require('./build/Release/introspection_demo');
 
 console.log('=== Automatic JavaScript Bindings Test ===\n');
 
 // Create objects using constructors
 // -------------------------------------------------------
 console.log('1. Creating objects...');
-const person = new introspection.Person();
-const vehicle = new introspection.Vehicle();
+const person = new intro.Person("Coucou", 12, 1.74);
+const vehicle = new intro.Vehicle();
 
 console.log('Person created:', person.getClassName());
 console.log('Vehicle created:', vehicle.getClassName());
+console.log(`Person: ${person.name}, age ${person.age}, height ${person.height}m`);
+console.log(`Vehicle: ${vehicle.brand} ${vehicle.model} (${vehicle.year}), ${vehicle.mileage} miles`);
 console.log();
 
 // Test direct property access (natural JavaScript style)

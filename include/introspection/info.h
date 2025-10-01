@@ -10,10 +10,25 @@ using Arg = std::any;
 using Args = std::vector<Arg>;
 
 /**
+ * @brief Holds information about a constructor.
+ */
+class ConstructorInfo
+{
+public:
+    std::vector<std::string> parameter_types;
+    std::function<void *(const Args &)> factory; // Creates new instance
+
+    ConstructorInfo(const std::vector<std::string> &param_types,
+                    std::function<void *(const Args &)> fact)
+        : parameter_types(param_types), factory(fact) {}
+};
+
+/**
  * @brief Holds information about a member variable.
  */
-class MemberInfo {
-  public:
+class MemberInfo
+{
+public:
     std::string name;
     std::string type_name;
     std::function<Arg(const void *)> getter;
@@ -27,8 +42,9 @@ class MemberInfo {
 /**
  * @brief Holds information about a method.
  */
-class MethodInfo {
-  public:
+class MethodInfo
+{
+public:
     std::string name;
     std::string return_type;
     std::vector<std::string> parameter_types;
@@ -47,11 +63,13 @@ class MethodInfo {
  * resource management and avoids memory leaks. C++20 standard is used for
  * std::any and other features.
  */
-class TypeInfo {
-  public:
+class TypeInfo
+{
+public:
     std::string class_name;
     std::unordered_map<std::string, std::unique_ptr<MemberInfo>> members;
     std::unordered_map<std::string, std::unique_ptr<MethodInfo>> methods;
+    std::vector<std::unique_ptr<ConstructorInfo>> constructors;
 
     explicit TypeInfo(const std::string &name) : class_name(name) {}
 
@@ -65,8 +83,12 @@ class TypeInfo {
 
     void addMember(std::unique_ptr<MemberInfo> member);
     void addMethod(std::unique_ptr<MethodInfo> method);
+    void addConstructor(std::unique_ptr<ConstructorInfo> ctor);
+
     const MemberInfo *getMember(const std::string &name) const;
     const MethodInfo *getMethod(const std::string &name) const;
+    const std::vector<std::unique_ptr<ConstructorInfo>>& getConstructors() const;
+    
     std::vector<std::string> getMemberNames() const;
     std::vector<std::string> getMethodNames() const;
 };

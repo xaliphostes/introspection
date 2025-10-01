@@ -18,6 +18,11 @@ inline void TypeInfo::addMethod(std::unique_ptr<MethodInfo> method)
     methods[method->name] = std::move(method);
 }
 
+inline void TypeInfo::addConstructor(std::unique_ptr<ConstructorInfo> ctor)
+{
+    constructors.push_back(std::move(ctor));
+}
+
 inline const MemberInfo *TypeInfo::getMember(const std::string &name) const
 {
     auto it = members.find(name);
@@ -28,6 +33,12 @@ inline const MethodInfo *TypeInfo::getMethod(const std::string &name) const
 {
     auto it = methods.find(name);
     return (it != methods.end()) ? it->second.get() : nullptr;
+}
+
+inline const std::vector<std::unique_ptr<ConstructorInfo>> &
+TypeInfo::getConstructors() const
+{
+    return constructors;
 }
 
 inline std::vector<std::string> TypeInfo::getMemberNames() const

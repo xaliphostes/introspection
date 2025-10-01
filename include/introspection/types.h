@@ -61,6 +61,13 @@ public:
   template <typename ReturnType, typename... Args>
   TypeRegistrar &method(const std::string &name,
                         ReturnType (Class::*method_ptr)(Args...) const);
+
+  /**
+   * @brief Register a constructor with specific parameter types.
+   * This creates a factory function that constructs the object.
+   */
+  template <typename... Args>
+  TypeRegistrar &constructor();
 };
 
 #include "inline/types.hxx"

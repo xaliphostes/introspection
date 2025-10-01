@@ -32,7 +32,10 @@ private:
 
 void Person::registerIntrospection(TypeRegistrar<Person> reg)
 {
-    reg.member("name", &Person::name)
+    reg
+        .constructor<>()
+        .constructor<const std::string &, int, double>()
+        .member("name", &Person::name)
         .member("age", &Person::age)
         .member("height", &Person::height)
         .member("isActive", &Person::isActive)
@@ -84,7 +87,10 @@ private:
 
 void Vehicle::registerIntrospection(TypeRegistrar<Vehicle> reg)
 {
-    reg.member("brand", &Vehicle::brand)
+    reg
+        .constructor<>()
+        .constructor<const std::string &, const std::string &, int>()
+        .member("brand", &Vehicle::brand)
         .member("model", &Vehicle::model)
         .member("year", &Vehicle::year)
         .member("mileage", &Vehicle::mileage)
