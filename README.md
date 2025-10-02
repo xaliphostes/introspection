@@ -1,5 +1,6 @@
 # C++ Introspection Library
-## ... with application to automatic language binding
+
+# This library is replaced by [rosetta](https://github.com/xaliphostes/rosetta)
 
 <p align="center">
   <img src="media/logo.png" alt="Logo introspection" width="200">
