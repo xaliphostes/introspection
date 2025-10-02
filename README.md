@@ -1,6 +1,10 @@
 # C++ Introspection Library
 
+<br><br><br>
+
 # This library is replaced by [rosetta](https://github.com/xaliphostes/rosetta)
+
+<br><br><br>
 
 <p align="center">
   <img src="media/logo.png" alt="Logo introspection" width="200">
